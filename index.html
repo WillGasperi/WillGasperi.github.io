@@ -513,6 +513,71 @@
                                 </div>
                             </div>
                             
+                            <!-- Taxas e Markup -->
+                            <div class="glass-card p-6">
+                                <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                                    <i class="fas fa-percentage"></i>
+                                    Taxas e Markup
+                                </h2>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div>
+                                        <label for="taxaFalhas" class="input-label">
+                                            Taxa de Falhas (%)
+                                            <span class="tooltip ml-1">
+                                                <i class="fas fa-info-circle text-xs"></i>
+                                                <span class="tooltiptext">Percentual de impressões que podem falhar</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="taxaFalhas" class="input-field" placeholder="0" step="0.1" min="0" value="5">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="imposto" class="input-label">
+                                            Imposto (%)
+                                            <span class="tooltip ml-1">
+                                                <i class="fas fa-info-circle text-xs"></i>
+                                                <span class="tooltiptext">Impostos sobre a venda</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="imposto" class="input-field" placeholder="0" step="0.1" min="0" value="0">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="taxaCartao" class="input-label">
+                                            Taxa de Cartão (%)
+                                            <span class="tooltip ml-1">
+                                                <i class="fas fa-info-circle text-xs"></i>
+                                                <span class="tooltiptext">Taxa da maquininha/gateway de pagamento</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="taxaCartao" class="input-field" placeholder="0" step="0.1" min="0" value="3.5">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="custoAnuncios" class="input-label">
+                                            Custo com Anúncios (%)
+                                            <span class="tooltip ml-1">
+                                                <i class="fas fa-info-circle text-xs"></i>
+                                                <span class="tooltiptext">Percentual do custo com marketing/anúncios</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="custoAnuncios" class="input-field" placeholder="0" step="0.1" min="0" value="0">
+                                    </div>
+                                    
+                                    <div class="md:col-span-2">
+                                        <label for="markup" class="input-label">
+                                            Markup (multiplicador de lucro)
+                                            <span class="tooltip ml-1">
+                                                <i class="fas fa-info-circle text-xs"></i>
+                                                <span class="tooltiptext">Multiplicador final sobre o custo total (ex: 2.0 = 100% de lucro)</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="markup" class="input-field" placeholder="1.0" step="0.1" min="1" value="1.5">
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <!-- Botão Calcular -->
                             <button id="calcularBtn" class="btn-primary w-full py-4 text-lg font-semibold flex items-center justify-center gap-3">
                                 <i class="fas fa-calculator"></i>
@@ -780,6 +845,13 @@
             const manutencao = parseFloat(document.getElementById('manutencao').value) || 0;
             const maoObra = parseFloat(document.getElementById('maoObra').value) || 0;
             
+            // Novas taxas e markup
+            const taxaFalhas = parseFloat(document.getElementById('taxaFalhas').value) || 0;
+            const imposto = parseFloat(document.getElementById('imposto').value) || 0;
+            const taxaCartao = parseFloat(document.getElementById('taxaCartao').value) || 0;
+            const custoAnuncios = parseFloat(document.getElementById('custoAnuncios').value) || 0;
+            const markup = parseFloat(document.getElementById('markup').value) || 1.5;
+            
             if (tempoProd <= 0 || pesoPeca <= 0) {
                 alert('Por favor, preencha o tempo de produção e peso da peça.');
                 return;
@@ -809,9 +881,22 @@
             const custoManutencao = manutencao * tempoProd;
             const custoMaoObra = maoObra * tempoProd;
             
-            const custoTotal = custoMaterial + custoEnergia + custoDepreciacao + custoManutencao + custoMaoObra + posProcessamento;
-            const valorLucro = custoTotal * (margemLucro / 100);
-            const precoFinal = custoTotal + valorLucro;
+            // Custo base
+            const custoBase = custoMaterial + custoEnergia + custoDepreciacao + custoManutencao + custoMaoObra + posProcessamento;
+            
+            // Aplicar taxa de falhas
+            const custoComFalhas = custoBase * (1 + taxaFalhas / 100);
+            
+            // Aplicar markup (margem de lucro antiga + novo markup)
+            const custoComMarkup = custoComFalhas * markup;
+            
+            // Aplicar taxas (imposto, cartão, anúncios)
+            const totalTaxas = imposto + taxaCartao + custoAnuncios;
+            const precoComTaxas = custoComMarkup / (1 - totalTaxas / 100);
+            
+            const valorLucro = precoComTaxas - custoBase;
+            const custoTotal = custoBase;
+            const precoFinal = precoComTaxas;
             
             resultadosCalculados = {
                 nomePeca,
@@ -825,6 +910,13 @@
                 custoManutencao,
                 custoMaoObra,
                 posProcessamento,
+                custoBase,
+                taxaFalhas,
+                custoComFalhas,
+                imposto,
+                taxaCartao,
+                custoAnuncios,
+                markup,
                 custoTotal,
                 margemLucro,
                 valorLucro,
@@ -873,13 +965,36 @@
                     </div>
                     ` : ''}
                     
-                    <div class="flex justify-between items-center py-3 border-b-2 border-primary">
-                        <span class="text-base font-semibold">Custo Total</span>
-                        <span class="text-lg font-bold">R$ ${resultadosCalculados.custoTotal.toFixed(2)}</span>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-700 mt-2">
+                        <span class="text-sm font-semibold">Custo Base</span>
+                        <span class="font-bold">R$ ${resultadosCalculados.custoBase.toFixed(2)}</span>
                     </div>
                     
-                    <div class="flex justify-between items-center py-2">
-                        <span class="text-sm text-gray-400">Lucro (${resultadosCalculados.margemLucro}%)</span>
+                    ${resultadosCalculados.taxaFalhas > 0 ? `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                        <span class="text-sm text-gray-400">Taxa de Falhas (${resultadosCalculados.taxaFalhas}%)</span>
+                        <span class="font-semibold text-orange-400">R$ ${(resultadosCalculados.custoComFalhas - resultadosCalculados.custoBase).toFixed(2)}</span>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                        <span class="text-sm text-gray-400">Markup (${resultadosCalculados.markup}x)</span>
+                        <span class="font-semibold text-blue-400">×${resultadosCalculados.markup}</span>
+                    </div>
+                    
+                    ${(resultadosCalculados.imposto + resultadosCalculados.taxaCartao + resultadosCalculados.custoAnuncios) > 0 ? `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-700">
+                        <span class="text-sm text-gray-400">Taxas Totais (${(resultadosCalculados.imposto + resultadosCalculados.taxaCartao + resultadosCalculados.custoAnuncios).toFixed(1)}%)</span>
+                        <span class="font-semibold text-yellow-400">
+                            ${resultadosCalculados.imposto > 0 ? `Imp: ${resultadosCalculados.imposto}% ` : ''}
+                            ${resultadosCalculados.taxaCartao > 0 ? `Cart: ${resultadosCalculados.taxaCartao}% ` : ''}
+                            ${resultadosCalculados.custoAnuncios > 0 ? `Anún: ${resultadosCalculados.custoAnuncios}%` : ''}
+                        </span>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="flex justify-between items-center py-2 mt-2">
+                        <span class="text-sm text-gray-400">Lucro Líquido</span>
                         <span class="font-semibold text-green-400">R$ ${resultadosCalculados.valorLucro.toFixed(2)}</span>
                     </div>
                     
