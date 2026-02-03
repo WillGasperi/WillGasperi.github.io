@@ -12,106 +12,140 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
 
-<div class="max-w-xl w-full bg-slate-800 rounded-xl shadow-lg p-6 space-y-6">
+<div class="max-w-4xl mx-auto space-y-8">
 
-    <h1 class="text-2xl font-bold text-center">Orçamento – Impressão 3D</h1>
-    <p class="text-center text-slate-400 text-sm">
-        Preencha os dados abaixo para gerar o valor final da peça
-    </p>
+    <h1 class="text-3xl font-bold text-center">Orçamento de Impressão 3D</h1>
 
-    <!-- Dados da peça -->
-    <div class="space-y-3">
-        <label class="block">
-            <span class="text-sm">Nome da peça</span>
-            <input id="nome" type="text" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-        </label>
-
-        <label class="block">
-            <span class="text-sm">Tempo de impressão (horas)</span>
-            <input id="tempo" type="number" step="0.1" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-        </label>
-
-        <label class="block">
-            <span class="text-sm">Peso da peça (gramas)</span>
-            <input id="peso" type="number" step="1" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-        </label>
+    <!-- TOGGLE -->
+    <div class="flex justify-center gap-4">
+        <button onclick="setModo('basico')" id="btnBasico"
+            class="px-4 py-2 rounded bg-indigo-600">Modo Básico</button>
+        <button onclick="setModo('avancado')" id="btnAvancado"
+            class="px-4 py-2 rounded bg-slate-700">Modo Avançado</button>
     </div>
 
-    <!-- Custos -->
-    <div class="grid grid-cols-2 gap-3">
-        <label>
-            <span class="text-sm">Valor do filamento (R$/kg)</span>
-            <input id="valorKg" type="number" value="50" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-        </label>
+    <!-- ORÇAMENTO -->
+    <div class="bg-slate-800 rounded-xl p-6 space-y-6">
 
-        <label>
-            <span class="text-sm">Energia elétrica (R$/hora)</span>
-            <input id="energiaHora" type="number" value="1.00" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-        </label>
+        <div class="grid md:grid-cols-2 gap-4">
+            <input id="tempo" type="number" step="0.1" placeholder="Tempo de impressão (h)"
+                class="input">
+            <input id="peso" type="number" placeholder="Peso da peça (g)"
+                class="input">
+        </div>
 
-        <label>
-            <span class="text-sm">Custo da máquina (R$/hora)</span>
-            <input id="maquinaHora" type="number" value="2.00" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-        </label>
+        <select id="impressora" class="input"></select>
 
-        <label>
-            <span class="text-sm">Mão de obra (R$/hora)</span>
-            <input id="maoObra" type="number" value="15.00" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-        </label>
+        <input id="pintura" type="number" value="0"
+            placeholder="Pintura (opcional R$)" class="input">
+
+        <!-- AVANÇADO -->
+        <div id="avancado" class="hidden space-y-4">
+            <div class="grid md:grid-cols-3 gap-4">
+                <input id="valorKg" type="number" value="50" class="input" placeholder="Filamento R$/kg">
+                <input id="kwh" type="number" value="0.8" class="input" placeholder="Energia R$/kWh">
+                <input id="maoObra" type="number" value="15" class="input" placeholder="Mão de obra R$/h">
+            </div>
+        </div>
+
+        <input id="markup" type="number" value="2" step="0.1"
+            class="input" placeholder="Markup (2 = 100%)">
+
+        <button onclick="calcular()"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded font-bold">
+            Calcular Orçamento
+        </button>
+
+        <div id="resultado" class="hidden text-center bg-slate-700 p-4 rounded">
+            <p class="text-slate-300">Preço final</p>
+            <p id="preco" class="text-3xl font-bold text-green-400">R$ 0,00</p>
+        </div>
+
     </div>
 
-    <!-- Serviços opcionais -->
-    <label class="block">
-        <span class="text-sm">Pintura (opcional – R$)</span>
-        <input id="pintura" type="number" value="0" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-    </label>
+    <!-- IMPRESSORAS -->
+    <div class="bg-slate-800 rounded-xl p-6 space-y-4">
+        <h2 class="text-xl font-bold">Impressoras</h2>
 
-    <!-- Lucro -->
-    <label class="block">
-        <span class="text-sm">Markup (ex: 2 = 100% de lucro)</span>
-        <input id="markup" type="number" step="0.1" value="2" class="w-full mt-1 p-2 rounded bg-slate-700 border border-slate-600">
-    </label>
+        <div class="grid md:grid-cols-4 gap-3">
+            <input id="nomeImp" placeholder="Nome" class="input">
+            <input id="custoImp" type="number" placeholder="Custo R$" class="input">
+            <input id="vidaImp" type="number" placeholder="Vida útil (h)" class="input">
+            <input id="potenciaImp" type="number" placeholder="Potência (W)" class="input">
+        </div>
 
-    <button onclick="calcular()" class="w-full bg-indigo-600 hover:bg-indigo-700 transition p-3 rounded font-semibold">
-        Calcular Orçamento
-    </button>
-
-    <!-- Resultado -->
-    <div id="resultado" class="hidden bg-slate-700 p-4 rounded text-center space-y-2">
-        <p class="text-sm text-slate-300">Valor final para o cliente</p>
-        <p id="valorFinal" class="text-3xl font-bold text-green-400">R$ 0,00</p>
+        <button onclick="addImpressora()" class="bg-green-600 px-4 py-2 rounded">
+            Adicionar Impressora
+        </button>
     </div>
 
 </div>
 
-<script>
-function calcular() {
-    const tempo = +tempoProd.value || +document.getElementById('tempo').value;
-    const peso = +document.getElementById('peso').value;
-    const valorKg = +document.getElementById('valorKg').value;
-    const energiaHora = +document.getElementById('energiaHora').value;
-    const maquinaHora = +document.getElementById('maquinaHora').value;
-    const maoObra = +document.getElementById('maoObra').value;
-    const pintura = +document.getElementById('pintura').value;
-    const markup = +document.getElementById('markup').value;
+<style>
+.input {
+    width: 100%;
+    padding: .6rem;
+    border-radius: .4rem;
+    background: #334155;
+    border: 1px solid #475569;
+}
+</style>
 
-    if (tempo <= 0 || peso <= 0) {
-        alert("Preencha tempo e peso da peça.");
+<script>
+let impressoras = JSON.parse(localStorage.getItem('impressoras')) || [];
+
+function setModo(modo) {
+    document.getElementById('avancado').classList.toggle('hidden', modo === 'basico');
+    btnBasico.className = modo === 'basico' ? 'px-4 py-2 rounded bg-indigo-600' : 'px-4 py-2 rounded bg-slate-700';
+    btnAvancado.className = modo === 'avancado' ? 'px-4 py-2 rounded bg-indigo-600' : 'px-4 py-2 rounded bg-slate-700';
+}
+
+function addImpressora() {
+    const imp = {
+        nome: nomeImp.value,
+        custo: +custoImp.value,
+        vida: +vidaImp.value,
+        potencia: +potenciaImp.value
+    };
+    impressoras.push(imp);
+    localStorage.setItem('impressoras', JSON.stringify(impressoras));
+    carregarImpressoras();
+}
+
+function carregarImpressoras() {
+    impressora.innerHTML = '<option value="">Selecione a impressora</option>';
+    impressoras.forEach((i, idx) => {
+        impressora.innerHTML += `<option value="${idx}">${i.nome}</option>`;
+    });
+}
+
+function calcular() {
+    const tempo = +tempo.value;
+    const peso = +peso.value;
+    const idx = impressora.value;
+    if (tempo <= 0 || peso <= 0 || idx === "") {
+        alert("Preencha tempo, peso e impressora.");
         return;
     }
 
-    const custoMaterial = (peso / 1000) * valorKg;
-    const custoTempo = tempo * (energiaHora + maquinaHora + maoObra);
-    const custoTotal = custoMaterial + custoTempo + pintura;
-    const precoFinal = custoTotal * markup;
+    const imp = impressoras[idx];
+    const custoHoraMaquina = imp.custo / imp.vida;
+    const energia = (imp.potencia / 1000) * tempo * (+kwh.value || 0);
+    const material = (peso / 1000) * (+valorKg.value || 0);
+    const mao = tempo * (+maoObra.value || 0);
+    const pinturaVal = +pintura.value || 0;
 
-    document.getElementById('valorFinal').innerText =
-        `R$ ${precoFinal.toFixed(2)}`;
+    const custo = material + energia + (custoHoraMaquina * tempo) + mao + pinturaVal;
+    const precoFinal = custo * (+markup.value);
 
-    document.getElementById('resultado').classList.remove('hidden');
+    preco.innerText = `R$ ${precoFinal.toFixed(2)}`;
+    resultado.classList.remove('hidden');
 }
+
+carregarImpressoras();
+setModo('basico');
 </script>
 
 </body>
