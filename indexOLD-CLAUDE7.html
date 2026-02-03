@@ -12,11 +12,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -232,22 +227,7 @@
                         <h1 class="text-3xl font-bold text-white">Camboriú 3D</h1>
                         <p class="text-indigo-100 mt-1">Calculadora Profissional de Orçamentos</p>
                     </div>
-                    <div class="mt-4 md:mt-0 flex gap-2 items-center">
-                        <!-- Botão de Login -->
-                        <div id="loginArea">
-                            <button onclick="fazerLogin()" id="btnLogin" class="bg-white/20 hover:bg-white/30 text-white text-sm font-medium py-2 px-3 rounded-md transition duration-300 flex items-center gap-2">
-                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                                Entrar
-                            </button>
-                        </div>
-                        <div id="userArea" class="hidden flex items-center gap-2">
-                            <img id="userPhoto" src="" alt="" class="w-8 h-8 rounded-full border-2 border-white/50">
-                            <span id="userName" class="text-white text-sm hidden md:inline"></span>
-                            <button onclick="fazerLogout()" class="bg-white/20 hover:bg-white/30 text-white text-xs py-1 px-2 rounded transition" title="Sair">
-                                Sair
-                            </button>
-                        </div>
-                        <div class="h-6 w-px bg-white/30 mx-1"></div>
+                    <div class="mt-4 md:mt-0 flex gap-2">
                         <button onclick="limparFormulario()" class="btn-secondary">
                             🔄 Novo
                         </button>
@@ -255,12 +235,6 @@
                             📄 Exportar PDF
                         </button>
                     </div>
-                </div>
-                <!-- Status de sincronização -->
-                <div id="syncStatus" class="hidden mt-3 text-center">
-                    <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full">
-                        ☁️ <span id="syncText">Dados sincronizados na nuvem</span>
-                    </span>
                 </div>
             </div>
             
@@ -975,24 +949,6 @@
     </footer>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        // ==================== FIREBASE CONFIG ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyAEpndLB4XT4Lig_mVo5_SkUAx88_DTqY0",
-            authDomain: "camboriu3d-full.firebaseapp.com",
-            projectId: "camboriu3d-full",
-            storageBucket: "camboriu3d-full.firebasestorage.app",
-            messagingSenderId: "515068632423",
-            appId: "1:515068632423:web:220daf42e3abfd3d5f23c2",
-            measurementId: "G-9H4K2DJ1J6"
-        };
-        
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
-        let currentUser = null;
-        
         // ==================== VARIÁVEIS GLOBAIS ====================
         let impressoraSelecionada = null;
         let filamentoSelecionado = null;
@@ -1000,135 +956,13 @@
         
         // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar estado de autenticação
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    currentUser = user;
-                    mostrarUsuarioLogado(user);
-                    await carregarDadosFirebase();
-                } else {
-                    currentUser = null;
-                    mostrarBotaoLogin();
-                    carregarDadosLocais();
-                }
-            });
-        });
-        
-        function carregarDadosLocais() {
             carregarConfiguracoes();
             carregarImpressoras();
             carregarFilamentos();
             atualizarSelectImpressoras();
             atualizarSelectFilamentos();
             carregarHistorico();
-        }
-        
-        // ==================== AUTENTICAÇÃO ====================
-        async function fazerLogin() {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                await auth.signInWithPopup(provider);
-                toast('✅ Login realizado com sucesso!');
-            } catch (error) {
-                console.error('Erro no login:', error);
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    toast('❌ Erro ao fazer login');
-                }
-            }
-        }
-        
-        async function fazerLogout() {
-            if (!confirm('Deseja sair? Seus dados continuarão salvos na nuvem.')) return;
-            try {
-                await auth.signOut();
-                toast('👋 Você saiu da conta');
-                // Recarregar dados locais
-                carregarDadosLocais();
-            } catch (error) {
-                console.error('Erro no logout:', error);
-            }
-        }
-        
-        function mostrarUsuarioLogado(user) {
-            document.getElementById('loginArea').classList.add('hidden');
-            document.getElementById('userArea').classList.remove('hidden');
-            document.getElementById('userPhoto').src = user.photoURL || '';
-            document.getElementById('userName').textContent = user.displayName?.split(' ')[0] || 'Usuário';
-            document.getElementById('syncStatus').classList.remove('hidden');
-        }
-        
-        function mostrarBotaoLogin() {
-            document.getElementById('loginArea').classList.remove('hidden');
-            document.getElementById('userArea').classList.add('hidden');
-            document.getElementById('syncStatus').classList.add('hidden');
-        }
-        
-        // ==================== FIREBASE SYNC ====================
-        async function carregarDadosFirebase() {
-            if (!currentUser) return;
-            
-            try {
-                document.getElementById('syncText').textContent = 'Carregando dados...';
-                
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
-                
-                if (userDoc.exists) {
-                    const dados = userDoc.data();
-                    
-                    // Carregar dados do Firebase para localStorage
-                    if (dados.config) localStorage.setItem('config3d', JSON.stringify(dados.config));
-                    if (dados.impressoras) localStorage.setItem('impressoras3d', JSON.stringify(dados.impressoras));
-                    if (dados.filamentos) localStorage.setItem('filamentos3d', JSON.stringify(dados.filamentos));
-                    if (dados.historico) localStorage.setItem('historico3d', JSON.stringify(dados.historico));
-                    if (dados.vendidos) localStorage.setItem('vendidos3d', JSON.stringify(dados.vendidos));
-                    if (dados.recusados) localStorage.setItem('recusados3d', JSON.stringify(dados.recusados));
-                }
-                
-                // Carregar na interface
-                carregarDadosLocais();
-                
-                document.getElementById('syncText').textContent = 'Dados sincronizados na nuvem';
-                
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-                document.getElementById('syncText').textContent = '⚠️ Erro ao sincronizar';
-                carregarDadosLocais();
-            }
-        }
-        
-        async function salvarDadosFirebase() {
-            if (!currentUser) return;
-            
-            try {
-                document.getElementById('syncText').textContent = 'Salvando...';
-                
-                await db.collection('users').doc(currentUser.uid).set({
-                    config: JSON.parse(localStorage.getItem('config3d') || '{}'),
-                    impressoras: JSON.parse(localStorage.getItem('impressoras3d') || '[]'),
-                    filamentos: JSON.parse(localStorage.getItem('filamentos3d') || '[]'),
-                    historico: JSON.parse(localStorage.getItem('historico3d') || '[]'),
-                    vendidos: JSON.parse(localStorage.getItem('vendidos3d') || '[]'),
-                    recusados: JSON.parse(localStorage.getItem('recusados3d') || '[]'),
-                    ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
-                    email: currentUser.email,
-                    nome: currentUser.displayName
-                }, { merge: true });
-                
-                document.getElementById('syncText').textContent = 'Dados sincronizados na nuvem';
-                
-            } catch (error) {
-                console.error('Erro ao salvar dados:', error);
-                document.getElementById('syncText').textContent = '⚠️ Erro ao sincronizar';
-            }
-        }
-        
-        // Função wrapper para salvar no localStorage E no Firebase
-        function salvarDados(chave, dados) {
-            localStorage.setItem(chave, JSON.stringify(dados));
-            if (currentUser) {
-                salvarDadosFirebase();
-            }
-        }
+        });
         
         // ==================== TABS ====================
         function mudarTab(tabId) {
@@ -1199,7 +1033,6 @@
                 contatoEmpresa: document.getElementById('configContatoEmpresa').value || ''
             };
             localStorage.setItem('config3d', JSON.stringify(config));
-            if (currentUser) salvarDadosFirebase();
             toast('✅ Configurações salvas!');
             calcular();
         }
@@ -1211,7 +1044,6 @@
         
         function salvarImpressoras(lista) {
             localStorage.setItem('impressoras3d', JSON.stringify(lista));
-            if (currentUser) salvarDadosFirebase();
         }
         
         function salvarImpressora() {
@@ -1329,7 +1161,6 @@
         
         function salvarFilamentos(lista) {
             localStorage.setItem('filamentos3d', JSON.stringify(lista));
-            if (currentUser) salvarDadosFirebase();
         }
         
         function salvarFilamento() {
@@ -1684,7 +1515,6 @@
             historico.unshift({ ...ultimoOrcamento, id: Date.now() });
             if (historico.length > 100) historico.pop();
             localStorage.setItem('historico3d', JSON.stringify(historico));
-            if (currentUser) salvarDadosFirebase();
             
             toast('✅ Orçamento salvo!');
             carregarHistorico();
@@ -1797,7 +1627,6 @@
             orcamento.mesVenda = new Date().toISOString().slice(0, 7); // YYYY-MM
             vendidos.unshift(orcamento);
             localStorage.setItem('vendidos3d', JSON.stringify(vendidos));
-            if (currentUser) salvarDadosFirebase();
             
             toast('✅ Vendido! Estoque atualizado');
             carregarHistorico();
@@ -1818,7 +1647,6 @@
             orcamento.dataRecusa = new Date().toLocaleDateString('pt-BR');
             recusados.unshift(orcamento);
             localStorage.setItem('recusados3d', JSON.stringify(recusados));
-            if (currentUser) salvarDadosFirebase();
             
             toast('❌ Marcado como recusado');
             carregarHistorico();
@@ -1943,7 +1771,6 @@
             delete orcamento.mesVenda;
             historico.unshift(orcamento);
             localStorage.setItem('historico3d', JSON.stringify(historico));
-            if (currentUser) salvarDadosFirebase();
             
             toast('↩️ Voltou para pendentes. Estoque restaurado');
             carregarVendidos();
@@ -1962,7 +1789,6 @@
             delete orcamento.dataRecusa;
             historico.unshift(orcamento);
             localStorage.setItem('historico3d', JSON.stringify(historico));
-            if (currentUser) salvarDadosFirebase();
             
             toast('↩️ Voltou para pendentes');
             carregarRecusados();
@@ -1974,7 +1800,6 @@
             let vendidos = JSON.parse(localStorage.getItem('vendidos3d')) || [];
             vendidos = vendidos.filter(v => v.id !== id);
             localStorage.setItem('vendidos3d', JSON.stringify(vendidos));
-            if (currentUser) salvarDadosFirebase();
             carregarVendidos();
             toast('🗑️ Venda excluída');
         }
@@ -1984,7 +1809,6 @@
             let recusados = JSON.parse(localStorage.getItem('recusados3d')) || [];
             recusados = recusados.filter(r => r.id !== id);
             localStorage.setItem('recusados3d', JSON.stringify(recusados));
-            if (currentUser) salvarDadosFirebase();
             carregarRecusados();
             toast('🗑️ Recusado excluído');
         }
@@ -2022,7 +1846,6 @@
             let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
             historico = historico.filter(o => o.id !== id);
             localStorage.setItem('historico3d', JSON.stringify(historico));
-            if (currentUser) salvarDadosFirebase();
             carregarHistorico();
             toast('🗑️ Orçamento excluído');
         }
@@ -2030,7 +1853,6 @@
         function limparHistorico() {
             if (!confirm('Limpar todos os orçamentos PENDENTES?\n\n(Vendidos e Recusados não serão afetados)')) return;
             localStorage.removeItem('historico3d');
-            if (currentUser) salvarDadosFirebase();
             carregarHistorico();
             toast('🗑️ Pendentes limpos');
         }
@@ -2038,7 +1860,6 @@
         function limparRecusados() {
             if (!confirm('Limpar todos os orçamentos RECUSADOS?')) return;
             localStorage.removeItem('recusados3d');
-            if (currentUser) salvarDadosFirebase();
             carregarRecusados();
             toast('🗑️ Recusados limpos');
         }
