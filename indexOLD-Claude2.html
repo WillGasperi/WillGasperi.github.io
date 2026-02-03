@@ -232,9 +232,6 @@
                     <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="impressoras" onclick="mudarTab('impressoras')">
                         🖨️ Impressoras
                     </button>
-                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="filamentos" onclick="mudarTab('filamentos')">
-                        🧵 Filamentos
-                    </button>
                     <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="configuracoes" onclick="mudarTab('configuracoes')">
                         ⚙️ Configurações
                     </button>
@@ -294,18 +291,13 @@
                                 </div>
                                 <div class="input-group">
                                     <label class="input-label">
-                                        Filamento
+                                        Preço do Filamento (R$/kg)
                                         <span class="tooltip ml-1 text-gray-400 cursor-help">
                                             ℹ️
-                                            <span class="tooltiptext">Selecione o filamento cadastrado ou cadastre um novo na aba Filamentos</span>
+                                            <span class="tooltiptext">Quanto você pagou por 1kg do filamento</span>
                                         </span>
                                     </label>
-                                    <select id="filamentoSelect" class="input-field" onchange="selecionarFilamento()">
-                                        <option value="">Selecione um filamento</option>
-                                    </select>
-                                    <p id="semFilamentoMsg" class="text-xs text-orange-500 mt-1 hidden">
-                                        Nenhum filamento cadastrado. <a href="#" onclick="mudarTab('filamentos')" class="text-indigo-600 hover:underline">Cadastre um</a>
-                                    </p>
+                                    <input type="number" id="precoFilamento" class="input-field" placeholder="Ex: 100" min="0" step="0.01" oninput="calcular()">
                                 </div>
                                 <div class="input-group">
                                     <label class="input-label">Tempo de Impressão (horas)</label>
@@ -494,53 +486,6 @@
                                 <div class="text-5xl mb-3">🖨️</div>
                                 <p>Nenhuma impressora cadastrada</p>
                                 <p class="text-sm">Cadastre sua primeira impressora no formulário ao lado</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-            
-            <!-- ==================== ABA FILAMENTOS ==================== -->
-            <div id="filamentosTab" class="tab-content hidden animate-fade">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    <!-- Formulário de Cadastro -->
-                    <div class="lg:col-span-1">
-                        <div class="card-section sticky top-4">
-                            <h2 class="card-title">➕ Cadastrar Filamento</h2>
-                            <div class="space-y-4">
-                                <div class="input-group">
-                                    <label class="input-label">Tipo de Filamento</label>
-                                    <input type="text" id="tipoFilamento" class="input-field" placeholder="Ex: PLA Branco, PETG Preto, ABS Cinza">
-                                </div>
-                                <div class="input-group">
-                                    <label class="input-label">Custo do Filamento (R$/kg)</label>
-                                    <input type="number" id="custoFilamento" class="input-field" placeholder="Ex: 120.00" min="0" step="0.01">
-                                    <p class="text-xs text-gray-500 mt-1">Quanto você pagou por 1kg deste filamento</p>
-                                </div>
-                                <div class="input-group">
-                                    <label class="input-label">Observações (opcional)</label>
-                                    <textarea id="obsFilamento" class="input-field" rows="2" placeholder="Ex: Comprado na loja X, boa qualidade..."></textarea>
-                                </div>
-                                <button onclick="salvarFilamento()" class="btn-primary w-full">
-                                    💾 Salvar Filamento
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Lista de Filamentos -->
-                    <div class="lg:col-span-2">
-                        <div class="card-section">
-                            <h2 class="card-title">📋 Filamentos Cadastrados</h2>
-                            <div id="listaFilamentos" class="space-y-3">
-                                <!-- Lista via JS -->
-                            </div>
-                            <div id="semFilamentos" class="text-center py-10 text-gray-500">
-                                <div class="text-5xl mb-3">🧵</div>
-                                <p>Nenhum filamento cadastrado</p>
-                                <p class="text-sm">Cadastre seu primeiro filamento no formulário ao lado</p>
                             </div>
                         </div>
                     </div>
@@ -755,16 +700,13 @@
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // ==================== VARIÁVEIS GLOBAIS ====================
         let impressoraSelecionada = null;
-        let filamentoSelecionado = null;
         let ultimoOrcamento = null;
         
         // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', function() {
             carregarConfiguracoes();
             carregarImpressoras();
-            carregarFilamentos();
             atualizarSelectImpressoras();
-            atualizarSelectFilamentos();
             carregarHistorico();
         });
         
@@ -781,10 +723,7 @@
             document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
             
             // Atualizar lista se necessário
-            if (tabId === 'calculadora') {
-                atualizarSelectImpressoras();
-                atualizarSelectFilamentos();
-            }
+            if (tabId === 'calculadora') atualizarSelectImpressoras();
             if (tabId === 'historico') carregarHistorico();
         }
         
@@ -958,116 +897,6 @@
             calcular();
         }
         
-        // ==================== FILAMENTOS ====================
-        function getFilamentos() {
-            return JSON.parse(localStorage.getItem('filamentos3d')) || [];
-        }
-        
-        function salvarFilamentos(lista) {
-            localStorage.setItem('filamentos3d', JSON.stringify(lista));
-        }
-        
-        function salvarFilamento() {
-            const tipo = document.getElementById('tipoFilamento').value.trim();
-            const custo = parseNum(document.getElementById('custoFilamento').value);
-            const obs = document.getElementById('obsFilamento').value.trim();
-            
-            if (!tipo) { toast('❌ Informe o tipo do filamento'); return; }
-            if (custo <= 0) { toast('❌ Informe o custo do filamento'); return; }
-            
-            const filamentos = getFilamentos();
-            filamentos.push({
-                id: Date.now(),
-                tipo,
-                custo,
-                obs
-            });
-            
-            salvarFilamentos(filamentos);
-            
-            // Limpar
-            document.getElementById('tipoFilamento').value = '';
-            document.getElementById('custoFilamento').value = '';
-            document.getElementById('obsFilamento').value = '';
-            
-            carregarFilamentos();
-            atualizarSelectFilamentos();
-            toast('✅ Filamento cadastrado!');
-        }
-        
-        function excluirFilamento(id) {
-            if (!confirm('Excluir este filamento?')) return;
-            let lista = getFilamentos().filter(f => f.id !== id);
-            salvarFilamentos(lista);
-            carregarFilamentos();
-            atualizarSelectFilamentos();
-            toast('🗑️ Filamento excluído');
-        }
-        
-        function carregarFilamentos() {
-            const lista = getFilamentos();
-            const container = document.getElementById('listaFilamentos');
-            const semMsg = document.getElementById('semFilamentos');
-            
-            if (lista.length === 0) {
-                container.innerHTML = '';
-                semMsg.style.display = 'block';
-                return;
-            }
-            
-            semMsg.style.display = 'none';
-            container.innerHTML = lista.map(f => `
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-start">
-                    <div>
-                        <h3 class="font-semibold text-gray-800">${f.tipo}</h3>
-                        <div class="text-sm text-gray-600 mt-1 space-y-1">
-                            <p class="text-indigo-600 font-medium">💰 ${formatarMoeda(f.custo)}/kg</p>
-                            ${f.obs ? `<p class="text-gray-500 text-xs">📝 ${f.obs}</p>` : ''}
-                        </div>
-                    </div>
-                    <button onclick="excluirFilamento(${f.id})" class="text-red-500 hover:text-red-700 text-xl">🗑️</button>
-                </div>
-            `).join('');
-        }
-        
-        function atualizarSelectFilamentos() {
-            const lista = getFilamentos();
-            const select = document.getElementById('filamentoSelect');
-            const semMsg = document.getElementById('semFilamentoMsg');
-            
-            if (lista.length === 0) {
-                select.innerHTML = '<option value="">Nenhum filamento cadastrado</option>';
-                semMsg.classList.remove('hidden');
-                filamentoSelecionado = null;
-                return;
-            }
-            
-            semMsg.classList.add('hidden');
-            select.innerHTML = '<option value="">Selecione um filamento</option>' + 
-                lista.map(f => `<option value="${f.id}">${f.tipo} - ${formatarMoeda(f.custo)}/kg</option>`).join('');
-            
-            // Selecionar primeiro automaticamente
-            if (lista.length > 0 && !filamentoSelecionado) {
-                select.value = lista[0].id;
-                filamentoSelecionado = lista[0];
-            }
-            calcular();
-        }
-        
-        function selecionarFilamento() {
-            const lista = getFilamentos();
-            const select = document.getElementById('filamentoSelect');
-            const id = parseInt(select.value);
-            
-            if (id) {
-                filamentoSelecionado = lista.find(f => f.id === id);
-            } else {
-                filamentoSelecionado = null;
-            }
-            
-            calcular();
-        }
-        
         // ==================== CÁLCULO PRINCIPAL ====================
         function calcular() {
             const config = getConfig();
@@ -1079,7 +908,7 @@
             
             // Inputs
             const peso = parseNum(document.getElementById('pesoPeca').value);
-            const precoFilamento = filamentoSelecionado ? filamentoSelecionado.custo : 0;
+            const precoFilamento = parseNum(document.getElementById('precoFilamento').value);
             const horas = parseInt(document.getElementById('tempoHoras').value) || 0;
             const minutos = parseInt(document.getElementById('tempoMinutos').value) || 0;
             const pintura = parseNum(document.getElementById('valorPintura').value);
@@ -1136,8 +965,6 @@
                 nomePeca: document.getElementById('nomePeca').value || 'Sem nome',
                 cliente: document.getElementById('clientePeca').value || '-',
                 impressora: impressoraSelecionada.nome,
-                filamento: filamentoSelecionado ? filamentoSelecionado.tipo : '-',
-                filamentoId: filamentoSelecionado ? filamentoSelecionado.id : null,
                 peso, precoFilamento, horas, minutos, tempoTotal,
                 custoMaterial, custoEnergia, custoDepreciacao, custoManutencao, custoMaoObra,
                 custoPintura, custoOutros, custoTotal, markup, valorLucro, precoFinal,
@@ -1157,8 +984,7 @@
             document.getElementById('nomePeca').value = '';
             document.getElementById('clientePeca').value = '';
             document.getElementById('pesoPeca').value = '';
-            document.getElementById('filamentoSelect').selectedIndex = 0;
-            filamentoSelecionado = null;
+            document.getElementById('precoFilamento').value = '';
             document.getElementById('tempoHoras').value = '';
             document.getElementById('tempoMinutos').value = '';
             document.getElementById('valorPintura').value = '';
@@ -1259,15 +1085,7 @@
             document.getElementById('nomePeca').value = o.nomePeca !== 'Sem nome' ? o.nomePeca : '';
             document.getElementById('clientePeca').value = o.cliente !== '-' ? o.cliente : '';
             document.getElementById('pesoPeca').value = o.peso;
-            
-            // Tentar selecionar o filamento pelo ID salvo
-            if (o.filamentoId) {
-                const select = document.getElementById('filamentoSelect');
-                select.value = o.filamentoId;
-                const filamentos = getFilamentos();
-                filamentoSelecionado = filamentos.find(f => f.id === o.filamentoId) || null;
-            }
-            
+            document.getElementById('precoFilamento').value = o.precoFilamento;
             document.getElementById('tempoHoras').value = o.horas;
             document.getElementById('tempoMinutos').value = o.minutos;
             document.getElementById('valorPintura').value = o.custoPintura || '';
