@@ -502,6 +502,23 @@
                         
                         <div class="space-y-6">
                             
+                            <!-- Dados da Empresa -->
+                            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-indigo-800 mb-3">🏢 Dados da Sua Empresa</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="input-group">
+                                        <label class="input-label">Nome da Empresa</label>
+                                        <input type="text" id="configNomeEmpresa" class="input-field" placeholder="Ex: Camboriú 3D">
+                                        <p class="text-xs text-gray-500 mt-1">Aparecerá no PDF e texto copiado</p>
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label">Contato da Empresa</label>
+                                        <input type="text" id="configContatoEmpresa" class="input-field" placeholder="Ex: @instagram ou (47) 99999-9999">
+                                        <p class="text-xs text-gray-500 mt-1">WhatsApp, Instagram, telefone, etc.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <!-- Energia -->
                             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                                 <h3 class="font-semibold text-yellow-800 mb-3">⚡ Energia Elétrica</h3>
@@ -733,7 +750,9 @@
                 precoKwh: 0.85,
                 manutencaoHora: 0.50,
                 maoObraHora: 20.00,
-                fatorMaoObra: 20
+                fatorMaoObra: 20,
+                nomeEmpresa: 'Minha Empresa 3D',
+                contatoEmpresa: '@minhaempresa'
             };
         }
         
@@ -743,6 +762,8 @@
             document.getElementById('configManutencao').value = c.manutencaoHora;
             document.getElementById('configMaoObra').value = c.maoObraHora;
             document.getElementById('configFatorMaoObra').value = c.fatorMaoObra;
+            document.getElementById('configNomeEmpresa').value = c.nomeEmpresa || '';
+            document.getElementById('configContatoEmpresa').value = c.contatoEmpresa || '';
         }
         
         function salvarConfiguracoes() {
@@ -750,7 +771,9 @@
                 precoKwh: parseNum(document.getElementById('configPrecoKwh').value),
                 manutencaoHora: parseNum(document.getElementById('configManutencao').value),
                 maoObraHora: parseNum(document.getElementById('configMaoObra').value),
-                fatorMaoObra: parseNum(document.getElementById('configFatorMaoObra').value)
+                fatorMaoObra: parseNum(document.getElementById('configFatorMaoObra').value),
+                nomeEmpresa: document.getElementById('configNomeEmpresa').value || 'Minha Empresa 3D',
+                contatoEmpresa: document.getElementById('configContatoEmpresa').value || ''
             };
             localStorage.setItem('config3d', JSON.stringify(config));
             toast('✅ Configurações salvas!');
@@ -1004,8 +1027,11 @@
             ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
             ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
             
+            const config = getConfig();
             const o = ultimoOrcamento;
+            
             let txt = `📦 *ORÇAMENTO IMPRESSÃO 3D*\n`;
+            txt += `🏢 ${config.nomeEmpresa}\n`;
             txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
             txt += `📅 Data: ${o.dataHora}\n`;
             if (o.nomePeca !== 'Sem nome') txt += `📋 Peça: ${o.nomePeca}\n`;
@@ -1017,7 +1043,7 @@
             txt += `💰 *VALOR: ${formatarMoeda(o.precoFinal)}*\n`;
             txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
             txt += `✅ Orçamento válido por 7 dias\n`;
-            txt += `📸 @camboriu3d`;
+            if (config.contatoEmpresa) txt += `📱 ${config.contatoEmpresa}`;
             
             navigator.clipboard.writeText(txt).then(() => toast('📋 Copiado!'));
         }
@@ -1099,10 +1125,12 @@
             ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
             ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
             
+            const config = getConfig();
             const o = ultimoOrcamento;
+            
             document.getElementById('pdfContent').innerHTML = `
                 <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-indigo-700 mb-2">Camboriú 3D</h1>
+                    <h1 class="text-3xl font-bold text-indigo-700 mb-2">${config.nomeEmpresa}</h1>
                     <p class="text-gray-500 text-sm">Orçamento de Impressão 3D</p>
                 </div>
                 
@@ -1146,7 +1174,7 @@
                 
                 <div class="text-center text-gray-500 text-sm space-y-1 mt-8 pt-4 border-t">
                     <p>✅ Orçamento válido por 7 dias</p>
-                    <p>📧 contato@camboriu3d.com.br • 📸 @camboriu3d</p>
+                    <p>📱 ${config.contatoEmpresa || config.nomeEmpresa}</p>
                 </div>
             `;
             
@@ -1167,4 +1195,18 @@
                 const imgWidth = 190;
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
-                pdf.addImage(imgData, 'PNG', 10, 10, imgWid
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                
+                const config = getConfig();
+                const nomeArquivo = ultimoOrcamento.nomePeca !== 'Sem nome' 
+                    ? `orcamento-${ultimoOrcamento.nomePeca.replace(/\s+/g, '-')}.pdf`
+                    : `orcamento-${config.nomeEmpresa.replace(/\s+/g, '-')}.pdf`;
+                
+                pdf.save(nomeArquivo);
+                fecharModal();
+                toast('📥 PDF gerado!');
+            });
+        }
+    </script>
+</body>
+</html>
