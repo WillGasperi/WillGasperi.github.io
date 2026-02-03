@@ -1257,11 +1257,6 @@
         async function fazerLogout() {
             if (!confirm('Deseja sair? Seus dados continuarão salvos na nuvem.')) return;
             try {
-                // Cancelar listener
-                if (listenerAtivo) {
-                    listenerAtivo();
-                    listenerAtivo = null;
-                }
                 await auth.signOut();
                 toast('👋 Você saiu da conta');
                 // Recarregar dados locais
@@ -1286,44 +1281,30 @@
         }
         
         // ==================== FIREBASE SYNC ====================
-        let listenerAtivo = null;
-        
         async function carregarDadosFirebase() {
             if (!currentUser || !codigoEmpresaAtual) return;
             
             try {
                 document.getElementById('syncText').textContent = 'Carregando dados...';
                 
-                // Cancelar listener anterior se existir
-                if (listenerAtivo) {
-                    listenerAtivo();
-                    listenerAtivo = null;
+                const empresaDoc = await db.collection('empresas').doc(codigoEmpresaAtual).get();
+                
+                if (empresaDoc.exists) {
+                    const dados = empresaDoc.data();
+                    
+                    // Carregar dados do Firebase para localStorage
+                    if (dados.config) localStorage.setItem('config3d', JSON.stringify(dados.config));
+                    if (dados.impressoras) localStorage.setItem('impressoras3d', JSON.stringify(dados.impressoras));
+                    if (dados.filamentos) localStorage.setItem('filamentos3d', JSON.stringify(dados.filamentos));
+                    if (dados.historico) localStorage.setItem('historico3d', JSON.stringify(dados.historico));
+                    if (dados.vendidos) localStorage.setItem('vendidos3d', JSON.stringify(dados.vendidos));
+                    if (dados.recusados) localStorage.setItem('recusados3d', JSON.stringify(dados.recusados));
                 }
                 
-                // Ativar listener em tempo real
-                listenerAtivo = db.collection('empresas').doc(codigoEmpresaAtual)
-                    .onSnapshot((doc) => {
-                        if (doc.exists) {
-                            const dados = doc.data();
-                            
-                            // Carregar dados do Firebase para localStorage
-                            if (dados.config) localStorage.setItem('config3d', JSON.stringify(dados.config));
-                            if (dados.impressoras) localStorage.setItem('impressoras3d', JSON.stringify(dados.impressoras));
-                            if (dados.filamentos) localStorage.setItem('filamentos3d', JSON.stringify(dados.filamentos));
-                            if (dados.historico) localStorage.setItem('historico3d', JSON.stringify(dados.historico));
-                            if (dados.vendidos) localStorage.setItem('vendidos3d', JSON.stringify(dados.vendidos));
-                            if (dados.recusados) localStorage.setItem('recusados3d', JSON.stringify(dados.recusados));
-                            
-                            // Atualizar interface
-                            carregarDadosLocais();
-                            
-                            const agora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-                            document.getElementById('syncText').textContent = `🟢 Sincronizado • ${codigoEmpresaAtual} • ${agora}`;
-                        }
-                    }, (error) => {
-                        console.error('Erro no listener:', error);
-                        document.getElementById('syncText').textContent = '🔴 Erro na sincronização';
-                    });
+                // Carregar na interface
+                carregarDadosLocais();
+                
+                document.getElementById('syncText').textContent = `Sincronizado • ${codigoEmpresaAtual}`;
                 
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
@@ -1332,37 +1313,29 @@
             }
         }
         
-        let salvandoTimeout = null;
-        
         async function salvarDadosFirebase() {
             if (!currentUser || !codigoEmpresaAtual) return;
             
-            // Debounce: espera 500ms antes de salvar para evitar muitas escritas
-            if (salvandoTimeout) clearTimeout(salvandoTimeout);
-            
-            document.getElementById('syncText').textContent = '💾 Salvando...';
-            
-            salvandoTimeout = setTimeout(async () => {
-                try {
-                    await db.collection('empresas').doc(codigoEmpresaAtual).set({
-                        config: JSON.parse(localStorage.getItem('config3d') || '{}'),
-                        impressoras: JSON.parse(localStorage.getItem('impressoras3d') || '[]'),
-                        filamentos: JSON.parse(localStorage.getItem('filamentos3d') || '[]'),
-                        historico: JSON.parse(localStorage.getItem('historico3d') || '[]'),
-                        vendidos: JSON.parse(localStorage.getItem('vendidos3d') || '[]'),
-                        recusados: JSON.parse(localStorage.getItem('recusados3d') || '[]'),
-                        ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
-                        atualizadoPor: currentUser.email
-                    }, { merge: true });
-                    
-                    const agora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-                    document.getElementById('syncText').textContent = `🟢 Sincronizado • ${codigoEmpresaAtual} • ${agora}`;
-                    
-                } catch (error) {
-                    console.error('Erro ao salvar dados:', error);
-                    document.getElementById('syncText').textContent = '🔴 Erro ao salvar';
-                }
-            }, 500);
+            try {
+                document.getElementById('syncText').textContent = 'Salvando...';
+                
+                await db.collection('empresas').doc(codigoEmpresaAtual).set({
+                    config: JSON.parse(localStorage.getItem('config3d') || '{}'),
+                    impressoras: JSON.parse(localStorage.getItem('impressoras3d') || '[]'),
+                    filamentos: JSON.parse(localStorage.getItem('filamentos3d') || '[]'),
+                    historico: JSON.parse(localStorage.getItem('historico3d') || '[]'),
+                    vendidos: JSON.parse(localStorage.getItem('vendidos3d') || '[]'),
+                    recusados: JSON.parse(localStorage.getItem('recusados3d') || '[]'),
+                    ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
+                    atualizadoPor: currentUser.email
+                }, { merge: true });
+                
+                document.getElementById('syncText').textContent = `Sincronizado • ${codigoEmpresaAtual}`;
+                
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
+                document.getElementById('syncText').textContent = '⚠️ Erro ao sincronizar';
+            }
         }
         
         // Função wrapper para salvar no localStorage E no Firebase
