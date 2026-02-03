@@ -8,145 +8,1166 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orçamento Impressão 3D</title>
+    <title>Camboriú 3D - Calculadora de Orçamento</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+        }
+        
+        .input-group {
+            transition: all 0.3s ease;
+        }
+        
+        .input-group:hover {
+            transform: translateY(-2px);
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .result-card {
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: scale(1.02);
+        }
+        
+        .tab {
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #4f46e5;
+            color: #4f46e5;
+        }
+        
+        .tab:hover:not(.active) {
+            border-bottom: 3px solid #818cf8;
+            color: #818cf8;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .card-section {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        
+        .input-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .input-field:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4338ca;
+            transform: scale(1.02);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #4f46e5;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #eef2ff;
+        }
+        
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            padding: 0.25rem 0;
+        }
+        
+        .printer-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .printer-option:hover {
+            border-color: #a5b4fc;
+        }
+        
+        .printer-option.selected {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
 </head>
-
-<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
-
-<div class="max-w-4xl mx-auto space-y-8">
-
-    <h1 class="text-3xl font-bold text-center">Orçamento de Impressão 3D</h1>
-
-    <!-- TOGGLE -->
-    <div class="flex justify-center gap-4">
-        <button onclick="setModo('basico')" id="btnBasico"
-            class="px-4 py-2 rounded bg-indigo-600">Modo Básico</button>
-        <button onclick="setModo('avancado')" id="btnAvancado"
-            class="px-4 py-2 rounded bg-slate-700">Modo Avançado</button>
-    </div>
-
-    <!-- ORÇAMENTO -->
-    <div class="bg-slate-800 rounded-xl p-6 space-y-6">
-
-        <div class="grid md:grid-cols-2 gap-4">
-            <input id="tempo" type="number" step="0.1" placeholder="Tempo de impressão (h)"
-                class="input">
-            <input id="peso" type="number" placeholder="Peso da peça (g)"
-                class="input">
+<body>
+    <div class="min-h-screen py-4 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">Camboriú 3D</h1>
+                        <p class="text-indigo-100 mt-1">Calculadora Profissional de Orçamentos</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex gap-2">
+                        <button onclick="limparFormulario()" class="btn-secondary">
+                            🔄 Novo
+                        </button>
+                        <button onclick="exportarPDF()" class="bg-indigo-800 hover:bg-indigo-900 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                            📄 Exportar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="bg-white rounded-lg shadow-md mb-6">
+                <div class="flex overflow-x-auto">
+                    <button class="tab active flex-1 py-4 px-6 text-center font-medium" data-tab="calculadora" onclick="mudarTab('calculadora')">
+                        🧮 Calculadora
+                    </button>
+                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="impressoras" onclick="mudarTab('impressoras')">
+                        🖨️ Impressoras
+                    </button>
+                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="configuracoes" onclick="mudarTab('configuracoes')">
+                        ⚙️ Configurações
+                    </button>
+                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="historico" onclick="mudarTab('historico')">
+                        📋 Histórico
+                    </button>
+                </div>
+            </div>
+            
+            <!-- ==================== ABA CALCULADORA ==================== -->
+            <div id="calculadoraTab" class="tab-content animate-fade">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Coluna Esquerda: Formulário -->
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <!-- Card: Dados do Projeto -->
+                        <div class="card-section">
+                            <h2 class="card-title">📦 Dados do Projeto</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="input-group">
+                                    <label class="input-label">Nome da Peça</label>
+                                    <input type="text" id="nomePeca" class="input-field" placeholder="Ex: Vaso Decorativo">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Cliente</label>
+                                    <input type="text" id="clientePeca" class="input-field" placeholder="Ex: João Silva">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card: Impressora -->
+                        <div class="card-section">
+                            <h2 class="card-title">🖨️ Impressora</h2>
+                            <div id="impressoraSelect" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                <!-- Impressoras carregadas via JS -->
+                            </div>
+                            <p id="semImpressoraMsg" class="text-gray-500 text-center py-4 hidden">
+                                Nenhuma impressora cadastrada. 
+                                <a href="#" onclick="mudarTab('impressoras')" class="text-indigo-600 hover:underline">Cadastre uma</a>
+                            </p>
+                        </div>
+                        
+                        <!-- Card: Material e Tempo -->
+                        <div class="card-section">
+                            <h2 class="card-title">🧵 Material e Tempo</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Peso da Peça (gramas)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Peso informado pelo fatiador (Cura, PrusaSlicer, etc)</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="pesoPeca" class="input-field" placeholder="Ex: 50" min="0" step="0.1" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Preço do Filamento (R$/kg)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Quanto você pagou por 1kg do filamento</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="precoFilamento" class="input-field" placeholder="Ex: 100" min="0" step="0.01" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Tempo de Impressão (horas)</label>
+                                    <input type="number" id="tempoHoras" class="input-field" placeholder="Ex: 5" min="0" step="0.1" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Tempo de Impressão (minutos)</label>
+                                    <input type="number" id="tempoMinutos" class="input-field" placeholder="Ex: 30" min="0" max="59" oninput="calcular()">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card: Custos Extras -->
+                        <div class="card-section">
+                            <h2 class="card-title">🎨 Custos Extras (Opcional)</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Pintura / Acabamento (R$)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Valor fixo cobrado pela pintura ou acabamento especial</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="valorPintura" class="input-field" placeholder="Ex: 50.00" min="0" step="0.01" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Outros Custos (R$)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Embalagem especial, parafusos, insertos, etc</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="outrosCustos" class="input-field" placeholder="Ex: 10.00" min="0" step="0.01" oninput="calcular()">
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Coluna Direita: Resultado -->
+                    <div class="lg:col-span-1">
+                        <div class="card-section sticky top-4">
+                            <h2 class="card-title">💰 Resultado do Orçamento</h2>
+                            
+                            <!-- Detalhamento -->
+                            <div class="mb-4">
+                                <h3 class="font-medium text-gray-700 mb-2">Custos de Produção</h3>
+                                <div class="space-y-1 text-sm">
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">🧵 Material (filamento)</span>
+                                        <span class="font-medium" id="custoMaterial">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">⚡ Energia elétrica</span>
+                                        <span class="font-medium" id="custoEnergia">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">📉 Depreciação da máquina</span>
+                                        <span class="font-medium" id="custoDepreciacao">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">🔧 Manutenção</span>
+                                        <span class="font-medium" id="custoManutencao">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">👷 Mão de obra</span>
+                                        <span class="font-medium" id="custoMaoObra">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row" id="rowPintura" style="display: none;">
+                                        <span class="text-gray-600">🎨 Pintura / Acabamento</span>
+                                        <span class="font-medium" id="custoPintura">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row" id="rowOutros" style="display: none;">
+                                        <span class="text-gray-600">📦 Outros custos</span>
+                                        <span class="font-medium" id="custoOutros">R$ 0,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custo Total -->
+                            <div class="bg-gray-100 rounded-lg p-3 mb-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-700">Custo Total:</span>
+                                    <span class="text-xl font-bold text-gray-800" id="custoTotal">R$ 0,00</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Markup -->
+                            <div class="mb-4">
+                                <label class="input-label">
+                                    Markup (sua margem de lucro) %
+                                    <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                        ℹ️
+                                        <span class="tooltiptext">Porcentagem de lucro sobre o custo. Ex: 50% = você ganha metade do custo como lucro.</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="markup" class="input-field" value="50" min="0" step="1" oninput="calcular()">
+                            </div>
+                            
+                            <!-- Lucro -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-green-700">Seu Lucro:</span>
+                                    <span class="text-xl font-bold text-green-600" id="valorLucro">R$ 0,00</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Preço Final -->
+                            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-4 mb-4 text-white">
+                                <div class="text-center">
+                                    <p class="text-indigo-100 text-sm">Preço Final para o Cliente</p>
+                                    <p class="text-3xl font-bold" id="precoFinal">R$ 0,00</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Botões -->
+                            <div class="flex gap-2">
+                                <button onclick="salvarOrcamento()" class="btn-primary flex-1">
+                                    💾 Salvar
+                                </button>
+                                <button onclick="copiarOrcamento()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-md transition">
+                                    📋
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- ==================== ABA IMPRESSORAS ==================== -->
+            <div id="impressorasTab" class="tab-content hidden animate-fade">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Formulário de Cadastro -->
+                    <div class="lg:col-span-1">
+                        <div class="card-section sticky top-4">
+                            <h2 class="card-title">➕ Cadastrar Impressora</h2>
+                            <div class="space-y-4">
+                                <div class="input-group">
+                                    <label class="input-label">Nome da Impressora</label>
+                                    <input type="text" id="nomeImpressora" class="input-field" placeholder="Ex: Ender 3 V2">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Valor Pago (R$)</label>
+                                    <input type="number" id="valorImpressora" class="input-field" placeholder="Ex: 1500.00" min="0" step="0.01">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Vida Útil (horas)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Tempo estimado de funcionamento. Geralmente 3.000 a 10.000 horas</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="vidaUtilImpressora" class="input-field" placeholder="Ex: 5000" min="1" value="5000">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Potência (Watts)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Consumo médio em Watts. Verifique na fonte ou manual (geralmente 200-500W)</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="potenciaImpressora" class="input-field" placeholder="Ex: 350" min="0">
+                                </div>
+                                <button onclick="salvarImpressora()" class="btn-primary w-full">
+                                    💾 Salvar Impressora
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Impressoras -->
+                    <div class="lg:col-span-2">
+                        <div class="card-section">
+                            <h2 class="card-title">📋 Impressoras Cadastradas</h2>
+                            <div id="listaImpressoras" class="space-y-3">
+                                <!-- Lista via JS -->
+                            </div>
+                            <div id="semImpressoras" class="text-center py-10 text-gray-500">
+                                <div class="text-5xl mb-3">🖨️</div>
+                                <p>Nenhuma impressora cadastrada</p>
+                                <p class="text-sm">Cadastre sua primeira impressora no formulário ao lado</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- ==================== ABA CONFIGURAÇÕES ==================== -->
+            <div id="configuracoesTab" class="tab-content hidden animate-fade">
+                <div class="max-w-2xl mx-auto">
+                    <div class="card-section">
+                        <h2 class="card-title">⚙️ Configurações Gerais</h2>
+                        <p class="text-gray-600 mb-6">Configure os valores padrão que serão usados em todos os orçamentos.</p>
+                        
+                        <div class="space-y-6">
+                            
+                            <!-- Energia -->
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-yellow-800 mb-3">⚡ Energia Elétrica</h3>
+                                <div class="input-group">
+                                    <label class="input-label">Preço do kWh (R$)</label>
+                                    <input type="number" id="configPrecoKwh" class="input-field" placeholder="Ex: 0.85" min="0" step="0.01" value="0.85">
+                                    <p class="text-xs text-gray-500 mt-1">Consulte sua conta de luz. Média Brasil: R$ 0,70 a R$ 1,00</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Manutenção -->
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-orange-800 mb-3">🔧 Manutenção</h3>
+                                <div class="input-group">
+                                    <label class="input-label">Custo de Manutenção por Hora (R$)</label>
+                                    <input type="number" id="configManutencao" class="input-field" placeholder="Ex: 0.50" min="0" step="0.01" value="0.50">
+                                    <p class="text-xs text-gray-500 mt-1">Reserva para bicos, correias, rolamentos e outras peças</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Mão de Obra -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-blue-800 mb-3">👷 Mão de Obra</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="input-group">
+                                        <label class="input-label">Valor da Sua Hora (R$)</label>
+                                        <input type="number" id="configMaoObra" class="input-field" placeholder="Ex: 20.00" min="0" step="0.01" value="20.00">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label">
+                                            Fator de Dedicação (%)
+                                            <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                                ℹ️
+                                                <span class="tooltiptext">Quanto do tempo de impressão você dedica ativamente (preparar, monitorar, finalizar). Ex: 20% = a cada 1h de impressão, você trabalha 12min.</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="configFatorMaoObra" class="input-field" placeholder="Ex: 20" min="0" max="100" value="20">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="salvarConfiguracoes()" class="btn-primary w-full">
+                                💾 Salvar Configurações
+                            </button>
+                            
+                        </div>
+                    </div>
+                    
+                    <!-- Info Box -->
+                    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mt-6">
+                        <h3 class="font-semibold text-indigo-800 mb-2">💡 Como funciona o cálculo?</h3>
+                        <div class="text-sm text-indigo-700 space-y-2">
+                            <p><strong>Custo Total</strong> = Material + Energia + Depreciação + Manutenção + Mão de Obra + Extras</p>
+                            <p><strong>Preço Final</strong> = Custo Total × (1 + Markup%)</p>
+                            <p class="text-xs text-indigo-600 mt-2">⚠️ Este sistema usa APENAS markup como lucro, sem duplicação de margem.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ==================== ABA HISTÓRICO ==================== -->
+            <div id="historicoTab" class="tab-content hidden animate-fade">
+                <div class="card-section">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                        <h2 class="card-title mb-0">📋 Histórico de Orçamentos</h2>
+                        <button onclick="limparHistorico()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded-md transition">
+                            🗑️ Limpar Tudo
+                        </button>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Peça</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Impressora</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Custo</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Preço Final</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                    <th class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaHistorico" class="bg-white divide-y divide-gray-200">
+                                <!-- Via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="semHistorico" class="text-center py-10 text-gray-500">
+                        <div class="text-5xl mb-3">📋</div>
+                        <p>Nenhum orçamento salvo</p>
+                        <p class="text-sm">Seus orçamentos salvos aparecerão aqui</p>
+                    </div>
+                </div>
+            </div>
+            
         </div>
-
-        <select id="impressora" class="input"></select>
-
-        <input id="pintura" type="number" value="0"
-            placeholder="Pintura (opcional R$)" class="input">
-
-        <!-- AVANÇADO -->
-        <div id="avancado" class="hidden space-y-4">
-            <div class="grid md:grid-cols-3 gap-4">
-                <input id="valorKg" type="number" value="50" class="input" placeholder="Filamento R$/kg">
-                <input id="kwh" type="number" value="0.8" class="input" placeholder="Energia R$/kWh">
-                <input id="maoObra" type="number" value="15" class="input" placeholder="Mão de obra R$/h">
+    </div>
+    
+    <!-- Modal PDF -->
+    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+            <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white">
+                <h3 class="text-lg font-medium text-gray-900">📄 Prévia do Orçamento</h3>
+                <button onclick="fecharModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="pdfContent" class="p-6">
+                <!-- Conteúdo do PDF -->
+            </div>
+            <div class="p-4 border-t flex gap-2 justify-end sticky bottom-0 bg-white">
+                <button onclick="fecharModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md">
+                    Cancelar
+                </button>
+                <button onclick="gerarPDF()" class="btn-primary">
+                    📥 Baixar PDF
+                </button>
             </div>
         </div>
-
-        <input id="markup" type="number" value="2" step="0.1"
-            class="input" placeholder="Markup (2 = 100%)">
-
-        <button onclick="calcular()"
-            class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded font-bold">
-            Calcular Orçamento
-        </button>
-
-        <div id="resultado" class="hidden text-center bg-slate-700 p-4 rounded">
-            <p class="text-slate-300">Preço final</p>
-            <p id="preco" class="text-3xl font-bold text-green-400">R$ 0,00</p>
-        </div>
-
     </div>
-
-    <!-- IMPRESSORAS -->
-    <div class="bg-slate-800 rounded-xl p-6 space-y-4">
-        <h2 class="text-xl font-bold">Impressoras</h2>
-
-        <div class="grid md:grid-cols-4 gap-3">
-            <input id="nomeImp" placeholder="Nome" class="input">
-            <input id="custoImp" type="number" placeholder="Custo R$" class="input">
-            <input id="vidaImp" type="number" placeholder="Vida útil (h)" class="input">
-            <input id="potenciaImp" type="number" placeholder="Potência (W)" class="input">
-        </div>
-
-        <button onclick="addImpressora()" class="bg-green-600 px-4 py-2 rounded">
-            Adicionar Impressora
-        </button>
+    
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <span id="toastMsg"></span>
     </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 mt-10">
+        <div class="max-w-7xl mx-auto px-6 py-10">
+            <div class="grid md:grid-cols-4 gap-8 text-center md:text-left">
+                
+                <div>
+                    <h3 class="text-white font-semibold text-xl mb-3">Camboriú 3D</h3>
+                    <p class="text-sm text-gray-400">
+                        Soluções em impressão 3D e cálculo profissional de custos para produção.
+                    </p>
+                </div>
 
-</div>
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-3">Contato</h3>
+                    <p class="text-sm mb-2">
+                        📧 <a href="mailto:contato@camboriu3d.com.br" class="hover:text-white">contato@camboriu3d.com.br</a>
+                    </p>
+                    <p class="text-sm">
+                        📸 <a href="https://instagram.com/camboriu3d" target="_blank" class="hover:text-white">@camboriu3d</a>
+                    </p>
+                </div>
 
-<style>
-.input {
-    width: 100%;
-    padding: .6rem;
-    border-radius: .4rem;
-    background: #334155;
-    border: 1px solid #475569;
-}
-</style>
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-3">Informações</h3>
+                    <p class="text-sm mb-2">
+                        <a href="sobre.html" class="hover:text-white">Sobre</a>
+                    </p>
+                    <p class="text-sm mb-2">
+                        <a href="politica.html" class="hover:text-white">Política de Privacidade</a>
+                    </p>
+                    <p class="text-sm">
+                        <a href="termos.html" class="hover:text-white">Termos de Uso</a>
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-3">Sistema</h3>
+                    <p class="text-sm text-gray-400">
+                        Cálculo com markup único.<br>
+                        Sem duplicação de lucro.<br>
+                        Preços justos e competitivos.
+                    </p>
+                </div>
 
-<script>
-let impressoras = JSON.parse(localStorage.getItem('impressoras')) || [];
+            </div>
 
-function setModo(modo) {
-    document.getElementById('avancado').classList.toggle('hidden', modo === 'basico');
-    btnBasico.className = modo === 'basico' ? 'px-4 py-2 rounded bg-indigo-600' : 'px-4 py-2 rounded bg-slate-700';
-    btnAvancado.className = modo === 'avancado' ? 'px-4 py-2 rounded bg-indigo-600' : 'px-4 py-2 rounded bg-slate-700';
-}
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
+                © 2025 Camboriú 3D — Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
 
-function addImpressora() {
-    const imp = {
-        nome: nomeImp.value,
-        custo: +custoImp.value,
-        vida: +vidaImp.value,
-        potencia: +potenciaImp.value
-    };
-    impressoras.push(imp);
-    localStorage.setItem('impressoras', JSON.stringify(impressoras));
-    carregarImpressoras();
-}
-
-function carregarImpressoras() {
-    impressora.innerHTML = '<option value="">Selecione a impressora</option>';
-    impressoras.forEach((i, idx) => {
-        impressora.innerHTML += `<option value="${idx}">${i.nome}</option>`;
-    });
-}
-
-function calcular() {
-    const tempo = +tempo.value;
-    const peso = +peso.value;
-    const idx = impressora.value;
-    if (tempo <= 0 || peso <= 0 || idx === "") {
-        alert("Preencha tempo, peso e impressora.");
-        return;
-    }
-
-    const imp = impressoras[idx];
-    const custoHoraMaquina = imp.custo / imp.vida;
-    const energia = (imp.potencia / 1000) * tempo * (+kwh.value || 0);
-    const material = (peso / 1000) * (+valorKg.value || 0);
-    const mao = tempo * (+maoObra.value || 0);
-    const pinturaVal = +pintura.value || 0;
-
-    const custo = material + energia + (custoHoraMaquina * tempo) + mao + pinturaVal;
-    const precoFinal = custo * (+markup.value);
-
-    preco.innerText = `R$ ${precoFinal.toFixed(2)}`;
-    resultado.classList.remove('hidden');
-}
-
-carregarImpressoras();
-setModo('basico');
-</script>
-
+    <script>
+        // ==================== VARIÁVEIS GLOBAIS ====================
+        let impressoraSelecionada = null;
+        let ultimoOrcamento = null;
+        
+        // ==================== INICIALIZAÇÃO ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarConfiguracoes();
+            carregarImpressoras();
+            atualizarSelectImpressoras();
+            carregarHistorico();
+        });
+        
+        // ==================== TABS ====================
+        function mudarTab(tabId) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // Remover active de todos os botões
+            document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabId + 'Tab').classList.remove('hidden');
+            // Ativar botão
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Atualizar lista se necessário
+            if (tabId === 'calculadora') atualizarSelectImpressoras();
+            if (tabId === 'historico') carregarHistorico();
+        }
+        
+        // ==================== TOAST ====================
+        function toast(msg, duration = 3000) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), duration);
+        }
+        
+        // ==================== FORMATAÇÃO ====================
+        function formatarMoeda(valor) {
+            return 'R$ ' + valor.toFixed(2).replace('.', ',');
+        }
+        
+        function parseNum(val) {
+            return parseFloat(val) || 0;
+        }
+        
+        // ==================== CONFIGURAÇÕES ====================
+        function getConfig() {
+            return JSON.parse(localStorage.getItem('config3d')) || {
+                precoKwh: 0.85,
+                manutencaoHora: 0.50,
+                maoObraHora: 20.00,
+                fatorMaoObra: 20
+            };
+        }
+        
+        function carregarConfiguracoes() {
+            const c = getConfig();
+            document.getElementById('configPrecoKwh').value = c.precoKwh;
+            document.getElementById('configManutencao').value = c.manutencaoHora;
+            document.getElementById('configMaoObra').value = c.maoObraHora;
+            document.getElementById('configFatorMaoObra').value = c.fatorMaoObra;
+        }
+        
+        function salvarConfiguracoes() {
+            const config = {
+                precoKwh: parseNum(document.getElementById('configPrecoKwh').value),
+                manutencaoHora: parseNum(document.getElementById('configManutencao').value),
+                maoObraHora: parseNum(document.getElementById('configMaoObra').value),
+                fatorMaoObra: parseNum(document.getElementById('configFatorMaoObra').value)
+            };
+            localStorage.setItem('config3d', JSON.stringify(config));
+            toast('✅ Configurações salvas!');
+            calcular();
+        }
+        
+        // ==================== IMPRESSORAS ====================
+        function getImpressoras() {
+            return JSON.parse(localStorage.getItem('impressoras3d')) || [];
+        }
+        
+        function salvarImpressoras(lista) {
+            localStorage.setItem('impressoras3d', JSON.stringify(lista));
+        }
+        
+        function salvarImpressora() {
+            const nome = document.getElementById('nomeImpressora').value.trim();
+            const valor = parseNum(document.getElementById('valorImpressora').value);
+            const vidaUtil = parseInt(document.getElementById('vidaUtilImpressora').value) || 0;
+            const potencia = parseInt(document.getElementById('potenciaImpressora').value) || 0;
+            
+            if (!nome) { toast('❌ Informe o nome'); return; }
+            if (valor <= 0) { toast('❌ Informe o valor'); return; }
+            if (vidaUtil <= 0) { toast('❌ Informe a vida útil'); return; }
+            if (potencia <= 0) { toast('❌ Informe a potência'); return; }
+            
+            const impressoras = getImpressoras();
+            impressoras.push({
+                id: Date.now(),
+                nome,
+                valor,
+                vidaUtil,
+                potencia,
+                custoHora: valor / vidaUtil
+            });
+            
+            salvarImpressoras(impressoras);
+            
+            // Limpar
+            document.getElementById('nomeImpressora').value = '';
+            document.getElementById('valorImpressora').value = '';
+            document.getElementById('vidaUtilImpressora').value = '5000';
+            document.getElementById('potenciaImpressora').value = '';
+            
+            carregarImpressoras();
+            atualizarSelectImpressoras();
+            toast('✅ Impressora cadastrada!');
+        }
+        
+        function excluirImpressora(id) {
+            if (!confirm('Excluir esta impressora?')) return;
+            let lista = getImpressoras().filter(p => p.id !== id);
+            salvarImpressoras(lista);
+            carregarImpressoras();
+            atualizarSelectImpressoras();
+            toast('🗑️ Impressora excluída');
+        }
+        
+        function carregarImpressoras() {
+            const lista = getImpressoras();
+            const container = document.getElementById('listaImpressoras');
+            const semMsg = document.getElementById('semImpressoras');
+            
+            if (lista.length === 0) {
+                container.innerHTML = '';
+                semMsg.style.display = 'block';
+                return;
+            }
+            
+            semMsg.style.display = 'none';
+            container.innerHTML = lista.map(p => `
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">${p.nome}</h3>
+                        <div class="text-sm text-gray-600 mt-1 space-y-1">
+                            <p>💰 Valor: ${formatarMoeda(p.valor)}</p>
+                            <p>⏰ Vida útil: ${p.vidaUtil.toLocaleString()}h</p>
+                            <p>⚡ Potência: ${p.potencia}W</p>
+                            <p class="text-indigo-600 font-medium">📊 Custo/hora: ${formatarMoeda(p.custoHora)}</p>
+                        </div>
+                    </div>
+                    <button onclick="excluirImpressora(${p.id})" class="text-red-500 hover:text-red-700 text-xl">🗑️</button>
+                </div>
+            `).join('');
+        }
+        
+        function atualizarSelectImpressoras() {
+            const lista = getImpressoras();
+            const container = document.getElementById('impressoraSelect');
+            const semMsg = document.getElementById('semImpressoraMsg');
+            
+            if (lista.length === 0) {
+                container.innerHTML = '';
+                semMsg.classList.remove('hidden');
+                impressoraSelecionada = null;
+                return;
+            }
+            
+            semMsg.classList.add('hidden');
+            container.innerHTML = lista.map((p, i) => `
+                <div class="printer-option ${i === 0 ? 'selected' : ''}" data-id="${p.id}" onclick="selecionarImpressora(${p.id})">
+                    <h4 class="font-semibold text-gray-800">${p.nome}</h4>
+                    <p class="text-xs text-gray-500">${p.potencia}W • ${formatarMoeda(p.custoHora)}/h</p>
+                </div>
+            `).join('');
+            
+            // Selecionar primeira
+            impressoraSelecionada = lista[0];
+            calcular();
+        }
+        
+        function selecionarImpressora(id) {
+            const lista = getImpressoras();
+            impressoraSelecionada = lista.find(p => p.id === id);
+            
+            document.querySelectorAll('.printer-option').forEach(el => {
+                el.classList.remove('selected');
+                if (parseInt(el.dataset.id) === id) el.classList.add('selected');
+            });
+            
+            calcular();
+        }
+        
+        // ==================== CÁLCULO PRINCIPAL ====================
+        function calcular() {
+            const config = getConfig();
+            
+            if (!impressoraSelecionada) {
+                zerarResultados();
+                return;
+            }
+            
+            // Inputs
+            const peso = parseNum(document.getElementById('pesoPeca').value);
+            const precoFilamento = parseNum(document.getElementById('precoFilamento').value);
+            const horas = parseInt(document.getElementById('tempoHoras').value) || 0;
+            const minutos = parseInt(document.getElementById('tempoMinutos').value) || 0;
+            const pintura = parseNum(document.getElementById('valorPintura').value);
+            const outros = parseNum(document.getElementById('outrosCustos').value);
+            const markup = parseNum(document.getElementById('markup').value);
+            
+            const tempoTotal = horas + (minutos / 60);
+            
+            // ========== CÁLCULOS ==========
+            // 1. Material: peso (g) × preço/g
+            const custoMaterial = peso * (precoFilamento / 1000);
+            
+            // 2. Energia: potência × tempo × preço kWh / 1000
+            const custoEnergia = (impressoraSelecionada.potencia * tempoTotal * config.precoKwh) / 1000;
+            
+            // 3. Depreciação: custo/hora da impressora × tempo
+            const custoDepreciacao = impressoraSelecionada.custoHora * tempoTotal;
+            
+            // 4. Manutenção: custo/hora × tempo
+            const custoManutencao = config.manutencaoHora * tempoTotal;
+            
+            // 5. Mão de obra: valor/hora × tempo × fator dedicação
+            const custoMaoObra = config.maoObraHora * tempoTotal * (config.fatorMaoObra / 100);
+            
+            // 6 e 7. Extras
+            const custoPintura = pintura;
+            const custoOutros = outros;
+            
+            // CUSTO TOTAL
+            const custoTotal = custoMaterial + custoEnergia + custoDepreciacao + custoManutencao + custoMaoObra + custoPintura + custoOutros;
+            
+            // MARKUP (único lugar onde entra o lucro)
+            const valorLucro = custoTotal * (markup / 100);
+            const precoFinal = custoTotal + valorLucro;
+            
+            // ========== ATUALIZAR UI ==========
+            document.getElementById('custoMaterial').textContent = formatarMoeda(custoMaterial);
+            document.getElementById('custoEnergia').textContent = formatarMoeda(custoEnergia);
+            document.getElementById('custoDepreciacao').textContent = formatarMoeda(custoDepreciacao);
+            document.getElementById('custoManutencao').textContent = formatarMoeda(custoManutencao);
+            document.getElementById('custoMaoObra').textContent = formatarMoeda(custoMaoObra);
+            document.getElementById('custoPintura').textContent = formatarMoeda(custoPintura);
+            document.getElementById('custoOutros').textContent = formatarMoeda(custoOutros);
+            document.getElementById('custoTotal').textContent = formatarMoeda(custoTotal);
+            document.getElementById('valorLucro').textContent = formatarMoeda(valorLucro);
+            document.getElementById('precoFinal').textContent = formatarMoeda(precoFinal);
+            
+            // Mostrar/ocultar extras
+            document.getElementById('rowPintura').style.display = custoPintura > 0 ? 'flex' : 'none';
+            document.getElementById('rowOutros').style.display = custoOutros > 0 ? 'flex' : 'none';
+            
+            // Salvar para uso posterior
+            ultimoOrcamento = {
+                nomePeca: document.getElementById('nomePeca').value || 'Sem nome',
+                cliente: document.getElementById('clientePeca').value || '-',
+                impressora: impressoraSelecionada.nome,
+                peso, precoFilamento, horas, minutos, tempoTotal,
+                custoMaterial, custoEnergia, custoDepreciacao, custoManutencao, custoMaoObra,
+                custoPintura, custoOutros, custoTotal, markup, valorLucro, precoFinal,
+                data: new Date().toLocaleDateString('pt-BR'),
+                dataHora: new Date().toLocaleString('pt-BR')
+            };
+        }
+        
+        function zerarResultados() {
+            ['custoMaterial', 'custoEnergia', 'custoDepreciacao', 'custoManutencao', 'custoMaoObra', 
+             'custoPintura', 'custoOutros', 'custoTotal', 'valorLucro', 'precoFinal'].forEach(id => {
+                document.getElementById(id).textContent = 'R$ 0,00';
+            });
+        }
+        
+        function limparFormulario() {
+            document.getElementById('nomePeca').value = '';
+            document.getElementById('clientePeca').value = '';
+            document.getElementById('pesoPeca').value = '';
+            document.getElementById('precoFilamento').value = '';
+            document.getElementById('tempoHoras').value = '';
+            document.getElementById('tempoMinutos').value = '';
+            document.getElementById('valorPintura').value = '';
+            document.getElementById('outrosCustos').value = '';
+            document.getElementById('markup').value = '50';
+            calcular();
+            toast('🔄 Formulário limpo');
+        }
+        
+        // ==================== SALVAR ORÇAMENTO ====================
+        function salvarOrcamento() {
+            if (!ultimoOrcamento || ultimoOrcamento.precoFinal <= 0) {
+                toast('❌ Preencha os dados primeiro');
+                return;
+            }
+            
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            historico.unshift({ ...ultimoOrcamento, id: Date.now() });
+            if (historico.length > 100) historico.pop();
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            
+            toast('✅ Orçamento salvo!');
+            carregarHistorico();
+        }
+        
+        function copiarOrcamento() {
+            if (!ultimoOrcamento || ultimoOrcamento.precoFinal <= 0) {
+                toast('❌ Preencha os dados primeiro');
+                return;
+            }
+            
+            const o = ultimoOrcamento;
+            let txt = `📦 ORÇAMENTO IMPRESSÃO 3D\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            if (o.nomePeca !== 'Sem nome') txt += `Peça: ${o.nomePeca}\n`;
+            if (o.cliente !== '-') txt += `Cliente: ${o.cliente}\n`;
+            txt += `Data: ${o.dataHora}\n\n`;
+            
+            txt += `📋 DETALHES:\n`;
+            txt += `• Impressora: ${o.impressora}\n`;
+            txt += `• Peso: ${o.peso}g\n`;
+            txt += `• Tempo: ${o.horas}h ${o.minutos}min\n\n`;
+            
+            txt += `💰 CUSTOS:\n`;
+            txt += `• Material: ${formatarMoeda(o.custoMaterial)}\n`;
+            txt += `• Energia: ${formatarMoeda(o.custoEnergia)}\n`;
+            txt += `• Depreciação: ${formatarMoeda(o.custoDepreciacao)}\n`;
+            txt += `• Manutenção: ${formatarMoeda(o.custoManutencao)}\n`;
+            txt += `• Mão de obra: ${formatarMoeda(o.custoMaoObra)}\n`;
+            if (o.custoPintura > 0) txt += `• Pintura: ${formatarMoeda(o.custoPintura)}\n`;
+            if (o.custoOutros > 0) txt += `• Outros: ${formatarMoeda(o.custoOutros)}\n`;
+            txt += `\nCusto Total: ${formatarMoeda(o.custoTotal)}\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            txt += `✅ VALOR FINAL: ${formatarMoeda(o.precoFinal)}\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━`;
+            
+            navigator.clipboard.writeText(txt).then(() => toast('📋 Copiado!'));
+        }
+        
+        // ==================== HISTÓRICO ====================
+        function carregarHistorico() {
+            const historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            const tabela = document.getElementById('tabelaHistorico');
+            const semMsg = document.getElementById('semHistorico');
+            
+            if (historico.length === 0) {
+                tabela.innerHTML = '';
+                semMsg.style.display = 'block';
+                return;
+            }
+            
+            semMsg.style.display = 'none';
+            tabela.innerHTML = historico.map(o => `
+                <tr>
+                    <td class="px-4 py-3 text-sm">${o.nomePeca}</td>
+                    <td class="px-4 py-3 text-sm">${o.cliente}</td>
+                    <td class="px-4 py-3 text-sm">${o.impressora}</td>
+                    <td class="px-4 py-3 text-sm">${formatarMoeda(o.custoTotal)}</td>
+                    <td class="px-4 py-3 text-sm font-semibold text-indigo-600">${formatarMoeda(o.precoFinal)}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${o.data}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <button onclick="carregarOrcamentoHistorico(${o.id})" class="text-indigo-600 hover:underline mr-2">📝</button>
+                        <button onclick="excluirOrcamento(${o.id})" class="text-red-500 hover:underline">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function carregarOrcamentoHistorico(id) {
+            const historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            const o = historico.find(h => h.id === id);
+            if (!o) return;
+            
+            document.getElementById('nomePeca').value = o.nomePeca !== 'Sem nome' ? o.nomePeca : '';
+            document.getElementById('clientePeca').value = o.cliente !== '-' ? o.cliente : '';
+            document.getElementById('pesoPeca').value = o.peso;
+            document.getElementById('precoFilamento').value = o.precoFilamento;
+            document.getElementById('tempoHoras').value = o.horas;
+            document.getElementById('tempoMinutos').value = o.minutos;
+            document.getElementById('valorPintura').value = o.custoPintura || '';
+            document.getElementById('outrosCustos').value = o.custoOutros || '';
+            document.getElementById('markup').value = o.markup;
+            
+            mudarTab('calculadora');
+            calcular();
+            toast('📝 Orçamento carregado');
+        }
+        
+        function excluirOrcamento(id) {
+            if (!confirm('Excluir este orçamento?')) return;
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            historico = historico.filter(o => o.id !== id);
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            carregarHistorico();
+            toast('🗑️ Orçamento excluído');
+        }
+        
+        function limparHistorico() {
+            if (!confirm('Excluir TODO o histórico?')) return;
+            localStorage.removeItem('historico3d');
+            carregarHistorico();
+            toast('🗑️ Histórico limpo');
+        }
+        
+        // ==================== EXPORTAR PDF ====================
+        function exportarPDF() {
+            if (!ultimoOrcamento || ultimoOrcamento.precoFinal <= 0) {
+                toast('❌ Preencha os dados primeiro');
+                return;
+            }
+            
+            const o = ultimoOrcamento;
+            document.getElementById('pdfContent').innerHTML = `
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Orçamento de Impressão 3D</h1>
+                    <p class="text-gray-600">${o.dataHora}</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+                    <div>
+                        <p><strong>Peça:</strong> ${o.nomePeca}</p>
+                        <p><strong>Cliente:</strong> ${o.cliente}</p>
+                    </div>
+                    <div>
+                        <p><strong>Impressora:</strong> ${o.impressora}</p>
+                        <p><strong>Peso:</strong> ${o.peso}g</p>
+                        <p><strong>Tempo:</strong> ${o.horas}h ${o.minutos}min</p>
+                    </div>
+                </div>
+                
+                <table class="w-full border border-gray-300 text-sm mb-6">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border px-3 py-2 text-left">Item</th>
+                            <th class="border px-3 py-2 text-right">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="border px-3 py-2">Material (filamento)</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoMaterial)}</td></tr>
+                        <tr><td class="border px-3 py-2">Energia elétrica</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoEnergia)}</td></tr>
+                        <tr><td class="border px-3 py-2">Depreciação da máquina</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoDepreciacao)}</td></tr>
+                        <tr><td class="border px-3 py-2">Manutenção</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoManutencao)}</td></tr>
+                        <tr><td class="border px-3 py-2">Mão de obra</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoMaoObra)}</td></tr>
+                        ${o.custoPintura > 0 ? `<tr><td class="border px-3 py-2">Pintura / Acabamento</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoPintura)}</td></tr>` : ''}
+                        ${o.custoOutros > 0 ? `<tr><td class="border px-3 py-2">Outros custos</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoOutros)}</td></tr>` : ''}
+                        <tr class="bg-gray-100 font-semibold">
+                            <td class="border px-3 py-2">Custo Total</td>
+                            <td class="border px-3 py-2 text-right">${formatarMoeda(o.custoTotal)}</td>
+                        </tr>
+                        <tr class="bg-indigo-100 font-bold text-lg">
+                            <td class="border px-3 py-3">VALOR FINAL</td>
+                            <td class="border px-3 py-3 text-right text-indigo-700">${formatarMoeda(o.precoFinal)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="text-xs text-gray-500 text-center">
+                    <p>Orçamento válido por 7 dias</p>
+                    <p>Camboriú 3D • contato@camboriu3d.com.br • @camboriu3d</p>
+                </div>
+            `;
+            
+            document.getElementById('pdfModal').classList.remove('hidden');
+        }
+        
+        function fecharModal() {
+            document.getElementById('pdfModal').classList.add('hidden');
+        }
+        
+        function gerarPDF() {
+            const { jsPDF } = window.jspdf;
+            const content = document.getElementById('pdfContent');
+            
+            html2canvas(content, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                pdf.save(`orcamento-${ultimoOrcamento.nomePeca.replace(/\s+/g, '-')}.pdf`);
+                
+                fecharModal();
+                toast('📥 PDF gerado!');
+            });
+        }
+    </script>
 </body>
 </html>
