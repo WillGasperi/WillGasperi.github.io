@@ -782,26 +782,18 @@
                         </div>
                         
                         <!-- Resumo de Vendas -->
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-                            <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                                <p class="text-green-600 text-xs">Total Vendido</p>
-                                <p class="text-xl font-bold text-green-700" id="totalVendido">R$ 0,00</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                                <p class="text-green-600 text-sm">Total Vendido</p>
+                                <p class="text-2xl font-bold text-green-700" id="totalVendido">R$ 0,00</p>
                             </div>
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-                                <p class="text-blue-600 text-xs">Lucro Total</p>
-                                <p class="text-xl font-bold text-blue-700" id="lucroTotalVendas">R$ 0,00</p>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                                <p class="text-blue-600 text-sm">Lucro Total</p>
+                                <p class="text-2xl font-bold text-blue-700" id="lucroTotalVendas">R$ 0,00</p>
                             </div>
-                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
-                                <p class="text-purple-600 text-xs">Qtd. Vendas</p>
-                                <p class="text-xl font-bold text-purple-700" id="qtdVendas">0</p>
-                            </div>
-                            <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-center">
-                                <p class="text-sky-600 text-xs">🔵 PLA Usado</p>
-                                <p class="text-xl font-bold text-sky-700" id="totalPLAVendido">0g</p>
-                            </div>
-                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center">
-                                <p class="text-orange-600 text-xs">🟠 PETG Usado</p>
-                                <p class="text-xl font-bold text-orange-700" id="totalPETGVendido">0g</p>
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                                <p class="text-purple-600 text-sm">Qtd. Vendas</p>
+                                <p class="text-2xl font-bold text-purple-700" id="qtdVendas">0</p>
                             </div>
                         </div>
                         
@@ -1682,20 +1674,9 @@
             const lucroTotal = vendidosFiltrados.reduce((sum, v) => sum + v.valorLucro, 0);
             const qtdVendas = vendidosFiltrados.length;
             
-            // Calcular totais de PLA e PETG usados
-            const totalPLA = vendidosFiltrados
-                .filter(v => v.filamento && v.filamento.toUpperCase().includes('PLA'))
-                .reduce((sum, v) => sum + (v.peso || 0), 0);
-            
-            const totalPETG = vendidosFiltrados
-                .filter(v => v.filamento && v.filamento.toUpperCase().includes('PETG'))
-                .reduce((sum, v) => sum + (v.peso || 0), 0);
-            
             document.getElementById('totalVendido').textContent = formatarMoeda(totalVendido);
             document.getElementById('lucroTotalVendas').textContent = formatarMoeda(lucroTotal);
             document.getElementById('qtdVendas').textContent = qtdVendas;
-            document.getElementById('totalPLAVendido').textContent = totalPLA.toLocaleString() + 'g';
-            document.getElementById('totalPETGVendido').textContent = totalPETG.toLocaleString() + 'g';
             
             if (vendidosFiltrados.length === 0) {
                 tabela.innerHTML = '';
