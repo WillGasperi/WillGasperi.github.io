@@ -643,7 +643,7 @@
                 <div>
                     <h3 class="text-white font-semibold text-lg mb-3">Contato</h3>
                     <p class="text-sm mb-2">
-                        📧 <a href="/cdn-cgi/l/email-protection#c9aaa6a7bda8bda689aaa8a4aba6bba0bcfaade7aaa6a4e7abbb" class="hover:text-white"><span class="__cf_email__" data-cfemail="ea8985849e8b9e85aa898b87888598839fd98ec4898587c48898">[email&#160;protected]</span></a>
+                        📧 <a href="mailto:contato@camboriu3d.com.br" class="hover:text-white">contato@camboriu3d.com.br</a>
                     </p>
                     <p class="text-sm">
                         📸 <a href="https://instagram.com/camboriu3d" target="_blank" class="hover:text-white">@camboriu3d</a>
@@ -680,7 +680,7 @@
         </div>
     </footer>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
         // ==================== VARIÁVEIS GLOBAIS ====================
         let impressoraSelecionada = null;
         let ultimoOrcamento = null;
@@ -978,12 +978,6 @@
                 return;
             }
             
-            // Atualizar nome e cliente com valores atuais do formulário
-            ultimoOrcamento.nomePeca = document.getElementById('nomePeca').value || 'Sem nome';
-            ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
-            ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
-            ultimoOrcamento.data = new Date().toLocaleDateString('pt-BR');
-            
             let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
             historico.unshift({ ...ultimoOrcamento, id: Date.now() });
             if (historico.length > 100) historico.pop();
@@ -999,25 +993,30 @@
                 return;
             }
             
-            // Atualizar nome e cliente com valores atuais do formulário
-            ultimoOrcamento.nomePeca = document.getElementById('nomePeca').value || 'Sem nome';
-            ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
-            ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
-            
             const o = ultimoOrcamento;
-            let txt = `📦 *ORÇAMENTO IMPRESSÃO 3D*\n`;
-            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            txt += `📅 Data: ${o.dataHora}\n`;
-            if (o.nomePeca !== 'Sem nome') txt += `📋 Peça: ${o.nomePeca}\n`;
-            if (o.cliente !== '-') txt += `👤 Cliente: ${o.cliente}\n`;
-            txt += `\n📐 *Especificações:*\n`;
+            let txt = `📦 ORÇAMENTO IMPRESSÃO 3D\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            if (o.nomePeca !== 'Sem nome') txt += `Peça: ${o.nomePeca}\n`;
+            if (o.cliente !== '-') txt += `Cliente: ${o.cliente}\n`;
+            txt += `Data: ${o.dataHora}\n\n`;
+            
+            txt += `📋 DETALHES:\n`;
+            txt += `• Impressora: ${o.impressora}\n`;
             txt += `• Peso: ${o.peso}g\n`;
-            txt += `• Tempo de produção: ${o.horas}h ${o.minutos}min\n`;
-            txt += `\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-            txt += `💰 *VALOR: ${formatarMoeda(o.precoFinal)}*\n`;
-            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-            txt += `✅ Orçamento válido por 7 dias\n`;
-            txt += `📸 @camboriu3d`;
+            txt += `• Tempo: ${o.horas}h ${o.minutos}min\n\n`;
+            
+            txt += `💰 CUSTOS:\n`;
+            txt += `• Material: ${formatarMoeda(o.custoMaterial)}\n`;
+            txt += `• Energia: ${formatarMoeda(o.custoEnergia)}\n`;
+            txt += `• Depreciação: ${formatarMoeda(o.custoDepreciacao)}\n`;
+            txt += `• Manutenção: ${formatarMoeda(o.custoManutencao)}\n`;
+            txt += `• Mão de obra: ${formatarMoeda(o.custoMaoObra)}\n`;
+            if (o.custoPintura > 0) txt += `• Pintura: ${formatarMoeda(o.custoPintura)}\n`;
+            if (o.custoOutros > 0) txt += `• Outros: ${formatarMoeda(o.custoOutros)}\n`;
+            txt += `\nCusto Total: ${formatarMoeda(o.custoTotal)}\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            txt += `✅ VALOR FINAL: ${formatarMoeda(o.precoFinal)}\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━`;
             
             navigator.clipboard.writeText(txt).then(() => toast('📋 Copiado!'));
         }
@@ -1094,59 +1093,54 @@
                 return;
             }
             
-            // Atualizar nome e cliente com valores atuais do formulário
-            ultimoOrcamento.nomePeca = document.getElementById('nomePeca').value || 'Sem nome';
-            ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
-            ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
-            
             const o = ultimoOrcamento;
             document.getElementById('pdfContent').innerHTML = `
-                <div class="text-center mb-8">
-                    <h1 class="text-3xl font-bold text-indigo-700 mb-2">Camboriú 3D</h1>
-                    <p class="text-gray-500 text-sm">Orçamento de Impressão 3D</p>
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Orçamento de Impressão 3D</h1>
+                    <p class="text-gray-600">${o.dataHora}</p>
                 </div>
                 
-                <div class="bg-gray-50 rounded-lg p-6 mb-6">
-                    <div class="grid grid-cols-2 gap-6">
-                        <div>
-                            <p class="text-gray-500 text-sm mb-1">Cliente</p>
-                            <p class="font-semibold text-gray-800 text-lg">${o.cliente}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-500 text-sm mb-1">Data</p>
-                            <p class="font-semibold text-gray-800 text-lg">${o.dataHora}</p>
-                        </div>
+                <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+                    <div>
+                        <p><strong>Peça:</strong> ${o.nomePeca}</p>
+                        <p><strong>Cliente:</strong> ${o.cliente}</p>
+                    </div>
+                    <div>
+                        <p><strong>Impressora:</strong> ${o.impressora}</p>
+                        <p><strong>Peso:</strong> ${o.peso}g</p>
+                        <p><strong>Tempo:</strong> ${o.horas}h ${o.minutos}min</p>
                     </div>
                 </div>
                 
-                <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-                    <h2 class="font-semibold text-gray-800 text-lg mb-4 pb-2 border-b">📦 Detalhes do Projeto</h2>
-                    <div class="space-y-3">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Peça:</span>
-                            <span class="font-medium text-gray-800">${o.nomePeca}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Peso:</span>
-                            <span class="font-medium text-gray-800">${o.peso}g</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Tempo de produção:</span>
-                            <span class="font-medium text-gray-800">${o.horas}h ${o.minutos}min</span>
-                        </div>
-                    </div>
-                </div>
+                <table class="w-full border border-gray-300 text-sm mb-6">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border px-3 py-2 text-left">Item</th>
+                            <th class="border px-3 py-2 text-right">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="border px-3 py-2">Material (filamento)</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoMaterial)}</td></tr>
+                        <tr><td class="border px-3 py-2">Energia elétrica</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoEnergia)}</td></tr>
+                        <tr><td class="border px-3 py-2">Depreciação da máquina</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoDepreciacao)}</td></tr>
+                        <tr><td class="border px-3 py-2">Manutenção</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoManutencao)}</td></tr>
+                        <tr><td class="border px-3 py-2">Mão de obra</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoMaoObra)}</td></tr>
+                        ${o.custoPintura > 0 ? `<tr><td class="border px-3 py-2">Pintura / Acabamento</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoPintura)}</td></tr>` : ''}
+                        ${o.custoOutros > 0 ? `<tr><td class="border px-3 py-2">Outros custos</td><td class="border px-3 py-2 text-right">${formatarMoeda(o.custoOutros)}</td></tr>` : ''}
+                        <tr class="bg-gray-100 font-semibold">
+                            <td class="border px-3 py-2">Custo Total</td>
+                            <td class="border px-3 py-2 text-right">${formatarMoeda(o.custoTotal)}</td>
+                        </tr>
+                        <tr class="bg-indigo-100 font-bold text-lg">
+                            <td class="border px-3 py-3">VALOR FINAL</td>
+                            <td class="border px-3 py-3 text-right text-indigo-700">${formatarMoeda(o.precoFinal)}</td>
+                        </tr>
+                    </tbody>
+                </table>
                 
-                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-6 mb-6 text-white">
-                    <div class="text-center">
-                        <p class="text-indigo-100 text-sm mb-2">Valor Total</p>
-                        <p class="text-4xl font-bold">${formatarMoeda(o.precoFinal)}</p>
-                    </div>
-                </div>
-                
-                <div class="text-center text-gray-500 text-sm space-y-1 mt-8 pt-4 border-t">
-                    <p>✅ Orçamento válido por 7 dias</p>
-                    <p>📧 contato@camboriu3d.com.br • 📸 @camboriu3d</p>
+                <div class="text-xs text-gray-500 text-center">
+                    <p>Orçamento válido por 7 dias</p>
+                    <p>Camboriú 3D • contato@camboriu3d.com.br • @camboriu3d</p>
                 </div>
             `;
             
@@ -1167,4 +1161,13 @@
                 const imgWidth = 190;
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
-                pdf.addImage(imgData, 'PNG', 10, 10, imgWid
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                pdf.save(`orcamento-${ultimoOrcamento.nomePeca.replace(/\s+/g, '-')}.pdf`);
+                
+                fecharModal();
+                toast('📥 PDF gerado!');
+            });
+        }
+    </script>
+</body>
+</html>
