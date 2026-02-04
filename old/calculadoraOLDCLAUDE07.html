@@ -1325,6 +1325,18 @@
         
         // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', function() {
+            // Capturar resultado do redirect (quando voltar do login Google)
+            auth.getRedirectResult().then((result) => {
+                if (result && result.user) {
+                    toast('✅ Login realizado com sucesso!');
+                }
+            }).catch((error) => {
+                if (error.code && error.code !== 'auth/popup-closed-by-user') {
+                    console.error('Erro no redirect:', error);
+                    toast('❌ Erro no login: ' + error.code);
+                }
+            });
+            
             // Verificar estado de autenticação
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
@@ -1524,16 +1536,11 @@
                 provider.setCustomParameters({
                     prompt: 'select_account'
                 });
-                // Usar popup agora que está no Firebase Hosting
-                const result = await auth.signInWithPopup(provider);
-                if (result.user) {
-                    toast('✅ Login realizado com sucesso!');
-                }
+                // Usar redirect - funciona melhor com domínios customizados via DNS
+                auth.signInWithRedirect(provider);
             } catch (error) {
                 console.error('Erro no login:', error);
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    toast('❌ Erro: ' + error.code);
-                }
+                toast('❌ Erro: ' + error.message);
             }
         }
         
