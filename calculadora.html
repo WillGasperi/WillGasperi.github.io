@@ -30,29 +30,14 @@
         #header-animado,
         div.animated-gradient,
         .animated-gradient {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5) !important;
-            background-size: 400% 400% !important;
-            -webkit-animation: gradientFlow 8s ease infinite !important;
-            -moz-animation: gradientFlow 8s ease infinite !important;
-            animation: gradientFlow 8s ease infinite !important;
+            background: linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899) !important;
+            background-size: 300% 300% !important;
+            animation: headerGradient 8s ease infinite !important;
         }
         
-        @-webkit-keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
+        @keyframes headerGradient {
+            0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        @-moz-keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        @keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
         
         .input-group {
@@ -398,8 +383,14 @@
         <div class="min-h-screen py-4 px-4 sm:px-6 lg:px-8 flex-1 max-w-7xl">
             <div class="max-w-7xl mx-auto">
             
-            <!-- Header -->
-            <div id="header-animado" class="rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+            <!-- Header com animação -->
+            <style>
+                @keyframes headerGradient {
+                    0%, 100% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                }
+            </style>
+            <div style="background: linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899); background-size: 300% 300%; animation: headerGradient 8s ease infinite;" class="rounded-lg shadow-lg p-4 sm:p-6 mb-6">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="text-center sm:text-left">
                         <h1 class="text-xl sm:text-3xl font-bold text-white">Camboriú 3D</h1>
@@ -2801,21 +2792,21 @@
         }
         
         .animated-gradient {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5) !important;
-            background-size: 400% 400% !important;
-            animation: gradientFlow 8s ease infinite !important;
+            background: linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899) !important;
+            background-size: 300% 300% !important;
+            animation: headerGradient 8s ease infinite !important;
         }
     </style>
     
     <script>
         // Força a animação via JS após carregar
-        window.addEventListener('load', function() {
-            const header = document.getElementById('header-animado');
-            if (header) {
-                header.style.background = 'linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5)';
-                header.style.backgroundSize = '400% 400%';
-                header.style.animation = 'gradientFlow 8s ease infinite';
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            const animatedElements = document.querySelectorAll('.animated-gradient');
+            animatedElements.forEach(el => {
+                el.style.background = 'linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899)';
+                el.style.backgroundSize = '300% 300%';
+                el.style.animation = 'headerGradient 8s ease infinite';
+            });
         });
     </script>
 </body>
