@@ -1327,20 +1327,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Iniciando app...');
             
-            // Capturar resultado do redirect (quando voltar do Google)
-            auth.getRedirectResult().then((result) => {
-                console.log('getRedirectResult:', result);
-                if (result && result.user) {
-                    console.log('Login via redirect OK:', result.user.email);
-                    toast('✅ Login realizado com sucesso!');
-                }
-            }).catch((error) => {
-                console.error('Erro no redirect:', error);
-                if (error.code) {
-                    toast('❌ Erro: ' + error.code);
-                }
-            });
-            
             // Verificar estado de autenticação
             auth.onAuthStateChanged(async (user) => {
                 console.log('onAuthStateChanged:', user ? user.email : 'null');
@@ -1541,11 +1527,14 @@
                 provider.setCustomParameters({
                     prompt: 'select_account'
                 });
-                // Usar redirect - redireciona para o Firebase, depois volta
-                auth.signInWithRedirect(provider);
+                const result = await auth.signInWithPopup(provider);
+                console.log('Login popup OK:', result.user.email);
+                toast('✅ Login realizado com sucesso!');
             } catch (error) {
                 console.error('Erro no login:', error);
-                toast('❌ Erro: ' + error.message);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    toast('❌ Erro: ' + error.code);
+                }
             }
         }
         
