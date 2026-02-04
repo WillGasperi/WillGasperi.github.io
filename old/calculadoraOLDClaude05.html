@@ -1926,8 +1926,9 @@
             if (!cor) { toast('❌ Informe a cor do filamento'); return; }
             if (custo <= 0) { toast('❌ Informe o custo do filamento'); return; }
             
-            // Montar o nome: "PLA Branco"
-            const tipo = `${tipoBase} ${cor}`;
+            // Montar o nome completo: "PLA Branco (Bambulab)" ou "PETG Preto"
+            let tipo = `${tipoBase} ${cor}`;
+            if (marca) tipo += ` (${marca})`;
             
             let filamentos = getFilamentos();
             
@@ -2071,7 +2072,6 @@
                     <div class="flex justify-between items-start">
                         <div class="flex-1">
                             <h3 class="font-semibold text-gray-800 text-sm">${f.tipo}</h3>
-                            ${f.marca ? `<p class="text-xs text-gray-500">🏭 ${f.marca}</p>` : ''}
                             <div class="text-xs text-gray-600 mt-1 flex flex-wrap gap-2">
                                 <span class="${c.text} font-medium">💰 ${formatarMoeda(f.custo)}/kg</span>
                                 <span class="${(f.estoque || 0) < 100 ? 'text-red-500' : 'text-green-600'} font-medium">
