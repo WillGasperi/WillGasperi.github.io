@@ -1302,7 +1302,7 @@
         // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
             apiKey: "AIzaSyAEpndlB4XT4Lig_mVo5_SkUAx88_DTqY0",
-            authDomain: "camboriu3d.com.br",
+            authDomain: "camboriu3d-full.firebaseapp.com",
             projectId: "camboriu3d-full",
             storageBucket: "camboriu3d-full.firebasestorage.app",
             messagingSenderId: "515068632423",
@@ -1325,6 +1325,18 @@
         
         // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', function() {
+            // Capturar resultado do redirect (quando voltar do Google)
+            auth.getRedirectResult().then((result) => {
+                if (result && result.user) {
+                    toast('✅ Login realizado com sucesso!');
+                }
+            }).catch((error) => {
+                console.error('Erro no redirect:', error);
+                if (error.code) {
+                    toast('❌ Erro: ' + error.code);
+                }
+            });
+            
             // Verificar estado de autenticação
             auth.onAuthStateChanged(async (user) => {
                 if (user) {
@@ -1524,16 +1536,11 @@
                 provider.setCustomParameters({
                     prompt: 'select_account'
                 });
-                // Usar popup agora que está no Firebase Hosting
-                const result = await auth.signInWithPopup(provider);
-                if (result.user) {
-                    toast('✅ Login realizado com sucesso!');
-                }
+                // Usar redirect - redireciona para o Firebase, depois volta
+                auth.signInWithRedirect(provider);
             } catch (error) {
                 console.error('Erro no login:', error);
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    toast('❌ Erro: ' + error.code);
-                }
+                toast('❌ Erro: ' + error.message);
             }
         }
         
