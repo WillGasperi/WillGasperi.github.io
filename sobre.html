@@ -1,31 +1,226 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Sobre - Camboriú 3D</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="description" content="Conheça a Camboriú 3D - Impressão 3D profissional em Camboriú/SC.">
+    <title>Sobre - Camboriú 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #4f46e5, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
 </head>
+<body class="bg-gray-50">
 
-<body class="bg-gray-100 text-gray-800">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="/" class="flex items-center gap-2">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cube text-white text-xl"></i>
+                    </div>
+                    <span class="font-bold text-xl text-gray-800">Camboriú <span class="gradient-text">3D</span></span>
+                </a>
+                
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="index.html#servicos" class="text-gray-600 hover:text-indigo-600 transition">Serviços</a>
+                    <a href="index.html#galeria" class="text-gray-600 hover:text-indigo-600 transition">Galeria</a>
+                    <a href="index.html#contato" class="text-gray-600 hover:text-indigo-600 transition">Contato</a>
+                    <a href="https://instagram.com/camboriu3d" target="_blank" class="gradient-bg text-white px-6 py-2 rounded-full font-medium hover:opacity-90 transition">
+                        📸 Orçamento
+                    </a>
+                </div>
+                
+                <a href="https://instagram.com/camboriu3d" target="_blank" class="md:hidden gradient-bg text-white px-4 py-2 rounded-full font-medium text-sm">
+                    📸 Orçamento
+                </a>
+            </div>
+        </div>
+    </nav>
 
-<div class="max-w-4xl mx-auto bg-white shadow p-8 mt-10 rounded">
+    <!-- Hero -->
+    <section class="gradient-bg pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Sobre Nós</h1>
+            <p class="text-indigo-100 text-lg">Conheça a história da Camboriú 3D</p>
+        </div>
+    </section>
 
-<h1 class="text-2xl font-bold mb-4">Sobre a Camboriú 3D</h1>
+    <!-- Conteúdo -->
+    <section class="py-16">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cube text-white"></i>
+                    </div>
+                    Quem Somos
+                </h2>
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    A <strong>Camboriú 3D</strong> é uma empresa especializada em impressão 3D profissional, localizada em Camboriú, Santa Catarina. Nascemos da paixão por tecnologia e da vontade de transformar ideias em realidade.
+                </p>
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    Trabalhamos com impressoras de alta precisão e materiais de qualidade para entregar peças que atendam às suas expectativas, seja para uso pessoal, profissional ou comercial.
+                </p>
+            </div>
 
-<p class="mb-4">
-A Camboriú 3D é especializada em soluções de impressão 3D e cálculo de custos para produção.
-</p>
+            <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-bullseye text-purple-600"></i>
+                    </div>
+                    Nossa Missão
+                </h2>
+                <p class="text-gray-600 leading-relaxed">
+                    Democratizar o acesso à impressão 3D de qualidade, oferecendo soluções personalizadas com atendimento humanizado, preços justos e prazos que cabem na sua necessidade.
+                </p>
+            </div>
 
-<p class="mb-4">
-Nosso objetivo é fornecer ferramentas simples e profissionais para makers, empresas e profissionais de impressão 3D.
-</p>
+            <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cogs text-indigo-600"></i>
+                    </div>
+                    O Que Fazemos
+                </h2>
+                <ul class="text-gray-600 space-y-3">
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span><strong>Protótipos:</strong> Transforme seu projeto em um modelo funcional para testes e validação.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span><strong>Miniaturas:</strong> Personagens, cenários e peças para jogos de tabuleiro e colecionadores.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span><strong>Decoração:</strong> Peças únicas para sua casa ou escritório.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span><strong>Peças Técnicas:</strong> Componentes funcionais para reposição ou projetos específicos.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i class="fas fa-check text-green-500 mt-1"></i>
+                        <span><strong>Presentes Personalizados:</strong> Surpreenda alguém especial com algo único.</span>
+                    </li>
+                </ul>
+            </div>
 
-<h2 class="text-xl font-semibold mt-6 mb-2">Contato</h2>
-<p>Email: camboriu3d@gmail.com</p>
-<p>Instagram: @camboriu3d</p>
+            <div class="bg-white rounded-2xl shadow-lg p-8 md:p-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-heart text-pink-600"></i>
+                    </div>
+                    Nossos Valores
+                </h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center p-4">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-gem text-indigo-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Qualidade</h3>
+                        <p class="text-gray-500 text-sm">Cada peça é impressa com atenção aos detalhes</p>
+                    </div>
+                    <div class="text-center p-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-comments text-purple-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Transparência</h3>
+                        <p class="text-gray-500 text-sm">Comunicação clara em todas as etapas</p>
+                    </div>
+                    <div class="text-center p-4">
+                        <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-handshake text-pink-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Compromisso</h3>
+                        <p class="text-gray-500 text-sm">Prazos e preços que respeitamos</p>
+                    </div>
+                </div>
+            </div>
 
-</div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="gradient-bg py-16">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold text-white mb-4">Vamos criar algo incrível juntos?</h2>
+            <p class="text-indigo-100 mb-8">Entre em contato e transforme sua ideia em realidade</p>
+            <a href="https://instagram.com/camboriu3d" target="_blank" class="inline-flex items-center gap-3 bg-white text-indigo-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transition">
+                <i class="fab fa-instagram text-2xl"></i>
+                Chamar no Instagram
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cube text-white text-xl"></i>
+                        </div>
+                        <span class="font-bold text-xl text-white">Camboriú 3D</span>
+                    </div>
+                    <p class="text-sm">
+                        Impressão 3D profissional em Camboriú/SC e região.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="index.html#servicos" class="hover:text-white transition">Serviços</a></li>
+                        <li><a href="index.html#galeria" class="hover:text-white transition">Galeria</a></li>
+                        <li><a href="index.html#contato" class="hover:text-white transition">Contato</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Legal</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="sobre.html" class="hover:text-white transition">Sobre</a></li>
+                        <li><a href="politica.html" class="hover:text-white transition">Política de Privacidade</a></li>
+                        <li><a href="termos.html" class="hover:text-white transition">Termos de Uso</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Contato</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="https://instagram.com/camboriu3d" target="_blank" class="hover:text-white transition"><i class="fab fa-instagram mr-2"></i>@camboriu3d</a></li>
+                        <li><a href="mailto:camboriu3d@gmail.com" class="hover:text-white transition"><i class="fas fa-envelope mr-2"></i>camboriu3d@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-sm">
+                <p>&copy; 2025-2026 Camboriú 3D. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
 
 </body>
 </html>
