@@ -26,11 +26,26 @@
             background-color: #f0f4f8;
         }
         
-        /* Gradiente animado */
+        /* Gradiente animado - alta especificidade */
+        div.animated-gradient,
         .animated-gradient {
             background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5) !important;
             background-size: 400% 400% !important;
-            animation: gradientFlow 15s ease infinite;
+            -webkit-animation: gradientFlow 15s ease infinite !important;
+            -moz-animation: gradientFlow 15s ease infinite !important;
+            animation: gradientFlow 15s ease infinite !important;
+        }
+        
+        @-webkit-keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @-moz-keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         @keyframes gradientFlow {
@@ -383,7 +398,7 @@
             <div class="max-w-7xl mx-auto">
             
             <!-- Header -->
-            <div class="animated-gradient rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+            <div class="animated-gradient rounded-lg shadow-lg p-4 sm:p-6 mb-6" style="background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5); background-size: 400% 400%; animation: gradientFlow 15s ease infinite;">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="text-center sm:text-left">
                         <h1 class="text-xl sm:text-3xl font-bold text-white">Camboriú 3D</h1>
@@ -2769,5 +2784,19 @@
             });
         }
     </script>
+    
+    <!-- Animação do gradiente (carrega por último para garantir) -->
+    <style>
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-gradient {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5) !important;
+            background-size: 400% 400% !important;
+            animation: gradientFlow 15s ease infinite !important;
+        }
+    </style>
 </body>
 </html>
