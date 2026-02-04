@@ -30,7 +30,7 @@
         #header-animado,
         div.animated-gradient,
         .animated-gradient {
-            background: linear-gradient(-45deg, #4f46e5, #6366f1, #7c3aed, #8b5cf6, #a78bfa, #7c3aed, #6366f1, #4f46e5) !important;
+            background: linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899) !important;
             background-size: 300% 300% !important;
             animation: headerGradient 8s ease infinite !important;
         }
@@ -161,9 +161,7 @@
         }
         
         .btn-primary {
-            background: linear-gradient(-45deg, #4f46e5, #6366f1, #7c3aed, #8b5cf6, #6366f1, #4f46e5);
-            background-size: 300% 300%;
-            animation: headerGradient 8s ease infinite;
+            background-color: #4f46e5;
             color: white;
             font-weight: 500;
             padding: 0.75rem 1.5rem;
@@ -172,7 +170,7 @@
         }
         
         .btn-primary:hover {
-            filter: brightness(1.1);
+            background-color: #4338ca;
             transform: scale(1.02);
         }
         
@@ -392,7 +390,7 @@
                     50% { background-position: 100% 50%; }
                 }
             </style>
-            <div style="background: linear-gradient(-45deg, #4f46e5, #6366f1, #7c3aed, #8b5cf6, #a78bfa, #7c3aed, #6366f1, #4f46e5); background-size: 300% 300%; animation: headerGradient 8s ease infinite;" class="rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+            <div style="background: linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899); background-size: 300% 300%; animation: headerGradient 8s ease infinite;" class="rounded-lg shadow-lg p-4 sm:p-6 mb-6">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="text-center sm:text-left">
                         <h1 class="text-xl sm:text-3xl font-bold text-white">Camboriú 3D</h1>
@@ -2788,13 +2786,13 @@
         }
         
         #header-animado {
-            background: linear-gradient(-45deg, #4f46e5, #6366f1, #7c3aed, #8b5cf6, #a78bfa, #7c3aed, #6366f1, #4f46e5) !important;
-            background-size: 300% 300% !important;
-            animation: headerGradient 8s ease infinite !important;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5) !important;
+            background-size: 400% 400% !important;
+            animation: gradientFlow 8s ease infinite !important;
         }
         
         .animated-gradient {
-            background: linear-gradient(-45deg, #4f46e5, #6366f1, #7c3aed, #8b5cf6, #a78bfa, #7c3aed, #6366f1, #4f46e5) !important;
+            background: linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899) !important;
             background-size: 300% 300% !important;
             animation: headerGradient 8s ease infinite !important;
         }
@@ -2805,7 +2803,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const animatedElements = document.querySelectorAll('.animated-gradient');
             animatedElements.forEach(el => {
-                el.style.background = 'linear-gradient(-45deg, #4f46e5, #6366f1, #7c3aed, #8b5cf6, #a78bfa, #7c3aed, #6366f1, #4f46e5)';
+                el.style.background = 'linear-gradient(-45deg, #4f46e5, #7c3aed, #9333ea, #db2777, #ec4899)';
                 el.style.backgroundSize = '300% 300%';
                 el.style.animation = 'headerGradient 8s ease infinite';
             });
