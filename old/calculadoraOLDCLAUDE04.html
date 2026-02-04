@@ -737,26 +737,11 @@
                                 <input type="hidden" id="editandoFilamentoId" value="">
                                 <div class="input-group">
                                     <label class="input-label">Tipo de Filamento</label>
-                                    <select id="tipoFilamentoSelect" class="input-field">
-                                        <option value="PLA">PLA</option>
-                                        <option value="PLA SILK">PLA SILK</option>
-                                        <option value="PETG">PETG</option>
-                                        <option value="ABS">ABS</option>
-                                        <option value="TPU">TPU</option>
-                                        <option value="OUTRO">OUTRO</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label class="input-label">Cor do Filamento</label>
-                                    <input type="text" id="corFilamento" class="input-field" placeholder="Ex: Branco, Preto, Vermelho, Azul...">
-                                </div>
-                                <div class="input-group">
-                                    <label class="input-label">Marca do Filamento</label>
-                                    <input type="text" id="marcaFilamento" class="input-field" placeholder="Ex: Bambulab, 3D Fila, Voolt3D, Masterprint...">
+                                    <input type="text" id="tipoFilamento" class="input-field" placeholder="Ex: PLA Branco, PETG Preto, ABS Cinza">
                                 </div>
                                 <div class="input-group">
                                     <label class="input-label">Custo do Filamento (R$/kg)</label>
-                                    <input type="number" id="custoFilamento" class="input-field" placeholder="Ex: 89.90" min="0" step="0.01">
+                                    <input type="number" id="custoFilamento" class="input-field" placeholder="Ex: 120.00" min="0" step="0.01">
                                 </div>
                                 <div class="input-group">
                                     <label class="input-label">
@@ -770,7 +755,7 @@
                                 </div>
                                 <div class="input-group">
                                     <label class="input-label">Observações (opcional)</label>
-                                    <textarea id="obsFilamento" class="input-field" rows="2" placeholder="Ex: Bom para miniaturas, não usar em peças técnicas..."></textarea>
+                                    <textarea id="obsFilamento" class="input-field" rows="2" placeholder="Ex: Comprado na loja X, boa qualidade, cor exata..."></textarea>
                                 </div>
                                 <div class="flex gap-2">
                                     <button onclick="salvarFilamento()" class="btn-primary flex-1" id="btnSalvarFilamento">
@@ -1916,19 +1901,13 @@
         
         function salvarFilamento() {
             const editandoId = document.getElementById('editandoFilamentoId').value;
-            const tipoBase = document.getElementById('tipoFilamentoSelect').value;
-            const cor = document.getElementById('corFilamento').value.trim();
-            const marca = document.getElementById('marcaFilamento').value.trim();
+            const tipo = document.getElementById('tipoFilamento').value.trim();
             const custo = parseNum(document.getElementById('custoFilamento').value);
             const estoque = parseNum(document.getElementById('estoqueFilamento').value);
             const obs = document.getElementById('obsFilamento').value.trim();
             
-            if (!cor) { toast('❌ Informe a cor do filamento'); return; }
+            if (!tipo) { toast('❌ Informe o tipo do filamento'); return; }
             if (custo <= 0) { toast('❌ Informe o custo do filamento'); return; }
-            
-            // Montar o nome completo: "PLA Branco (Bambulab)" ou "PETG Preto"
-            let tipo = `${tipoBase} ${cor}`;
-            if (marca) tipo += ` (${marca})`;
             
             let filamentos = getFilamentos();
             
@@ -1936,7 +1915,7 @@
                 // Editando
                 const index = filamentos.findIndex(f => f.id === parseInt(editandoId));
                 if (index !== -1) {
-                    filamentos[index] = { ...filamentos[index], tipo, tipoBase, cor, marca, custo, estoque, obs };
+                    filamentos[index] = { ...filamentos[index], tipo, custo, estoque, obs };
                 }
                 toast('✅ Filamento atualizado!');
             } else {
@@ -1944,9 +1923,6 @@
                 filamentos.push({
                     id: Date.now(),
                     tipo,
-                    tipoBase,
-                    cor,
-                    marca,
                     custo,
                     estoque,
                     obs
@@ -1966,9 +1942,7 @@
             if (!f) return;
             
             document.getElementById('editandoFilamentoId').value = id;
-            document.getElementById('tipoFilamentoSelect').value = f.tipoBase || 'PLA';
-            document.getElementById('corFilamento').value = f.cor || '';
-            document.getElementById('marcaFilamento').value = f.marca || '';
+            document.getElementById('tipoFilamento').value = f.tipo;
             document.getElementById('custoFilamento').value = f.custo;
             document.getElementById('estoqueFilamento').value = f.estoque || '';
             document.getElementById('obsFilamento').value = f.obs || '';
@@ -1980,9 +1954,7 @@
         
         function cancelarEdicaoFilamento() {
             document.getElementById('editandoFilamentoId').value = '';
-            document.getElementById('tipoFilamentoSelect').value = 'PLA';
-            document.getElementById('corFilamento').value = '';
-            document.getElementById('marcaFilamento').value = '';
+            document.getElementById('tipoFilamento').value = '';
             document.getElementById('custoFilamento').value = '';
             document.getElementById('estoqueFilamento').value = '';
             document.getElementById('obsFilamento').value = '';
@@ -2004,18 +1976,13 @@
         function carregarFilamentos() {
             const lista = getFilamentos();
             
-            // Função helper para determinar categoria
-            function getCategoria(f) {
-                const tipoBase = (f.tipoBase || f.tipo || '').toUpperCase();
-                if (tipoBase.includes('PLA')) return 'PLA';
-                if (tipoBase.includes('PETG')) return 'PETG';
-                return 'OUTROS';
-            }
-            
             // Separar por tipo
-            const filamentosPLA = lista.filter(f => getCategoria(f) === 'PLA');
-            const filamentosPETG = lista.filter(f => getCategoria(f) === 'PETG');
-            const filamentosOutros = lista.filter(f => getCategoria(f) === 'OUTROS');
+            const filamentosPLA = lista.filter(f => f.tipo.toUpperCase().includes('PLA'));
+            const filamentosPETG = lista.filter(f => f.tipo.toUpperCase().includes('PETG'));
+            const filamentosOutros = lista.filter(f => 
+                !f.tipo.toUpperCase().includes('PLA') && 
+                !f.tipo.toUpperCase().includes('PETG')
+            );
             
             // Calcular totais de estoque
             const totalPLA = filamentosPLA.reduce((sum, f) => sum + (f.estoque || 0), 0);
@@ -2101,18 +2068,13 @@
                 return;
             }
             
-            // Função helper para determinar categoria
-            function getCategoria(f) {
-                const tipoBase = (f.tipoBase || f.tipo || '').toUpperCase();
-                if (tipoBase.includes('PLA')) return 'PLA';
-                if (tipoBase.includes('PETG')) return 'PETG';
-                return 'OUTROS';
-            }
-            
             // Separar por tipo
-            const filamentosPLA = lista.filter(f => getCategoria(f) === 'PLA');
-            const filamentosPETG = lista.filter(f => getCategoria(f) === 'PETG');
-            const filamentosOutros = lista.filter(f => getCategoria(f) === 'OUTROS');
+            const filamentosPLA = lista.filter(f => f.tipo.toUpperCase().includes('PLA'));
+            const filamentosPETG = lista.filter(f => f.tipo.toUpperCase().includes('PETG'));
+            const filamentosOutros = lista.filter(f => 
+                !f.tipo.toUpperCase().includes('PLA') && 
+                !f.tipo.toUpperCase().includes('PETG')
+            );
             
             semMsg.classList.add('hidden');
             
