@@ -219,132 +219,6 @@
         .subtab:hover:not(.active) {
             background-color: #f9fafb;
         }
-        
-        /* ==================== RESPONSIVIDADE MOBILE ==================== */
-        @media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
-            
-            .card-section {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-            
-            .card-title {
-                font-size: 1rem;
-            }
-            
-            .input-label {
-                font-size: 0.75rem;
-            }
-            
-            .input-field {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.875rem;
-            }
-            
-            /* Header responsivo */
-            .header-buttons {
-                flex-wrap: wrap;
-                gap: 0.5rem !important;
-            }
-            
-            .header-buttons button {
-                padding: 0.5rem 0.75rem !important;
-                font-size: 0.75rem !important;
-            }
-            
-            /* Tabs responsivo */
-            .tab {
-                padding: 0.75rem 0.5rem !important;
-                font-size: 0.7rem !important;
-            }
-            
-            /* Grid responsivo */
-            .grid-cols-1.md\:grid-cols-2 {
-                grid-template-columns: 1fr !important;
-            }
-            
-            /* Impressora select responsivo */
-            #impressoraSelect {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .printer-option {
-                padding: 0.5rem;
-            }
-            
-            .printer-option h3 {
-                font-size: 0.875rem;
-            }
-            
-            .printer-option p {
-                font-size: 0.7rem;
-            }
-            
-            /* Resultado responsivo */
-            .cost-row {
-                font-size: 0.75rem;
-            }
-            
-            #precoFinal {
-                font-size: 1.75rem !important;
-            }
-            
-            #valorLucro {
-                font-size: 1rem !important;
-            }
-            
-            /* Botões de ação */
-            .btn-primary {
-                padding: 0.625rem 1rem;
-                font-size: 0.875rem;
-            }
-            
-            /* Subtabs */
-            .subtab {
-                font-size: 0.65rem !important;
-                padding: 0.5rem 0.25rem !important;
-            }
-            
-            /* Tabela histórico */
-            table {
-                font-size: 0.7rem;
-            }
-            
-            table th, table td {
-                padding: 0.5rem 0.25rem !important;
-            }
-            
-            /* Footer */
-            footer {
-                font-size: 0.8rem;
-            }
-            
-            footer .grid {
-                gap: 1.5rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .tab {
-                font-size: 0.6rem !important;
-                padding: 0.5rem 0.25rem !important;
-            }
-            
-            .tab span {
-                display: none;
-            }
-            
-            h1 {
-                font-size: 1.5rem !important;
-            }
-            
-            #precoFinal {
-                font-size: 1.5rem !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -369,33 +243,33 @@
             <div class="max-w-7xl mx-auto">
             
             <!-- Header -->
-            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-4 sm:p-6 mb-6">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="text-center sm:text-left">
-                        <h1 class="text-xl sm:text-3xl font-bold text-white">Camboriú 3D</h1>
-                        <p class="text-indigo-100 mt-1 text-sm sm:text-base">Calculadora de Orçamentos</p>
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">Camboriú 3D</h1>
+                        <p class="text-indigo-100 mt-1">Calculadora Profissional de Orçamentos</p>
                     </div>
-                    <div class="flex flex-wrap gap-2 items-center justify-center header-buttons">
+                    <div class="mt-4 md:mt-0 flex gap-2 items-center">
                         <!-- Botão de Login -->
                         <div id="loginArea">
-                            <button onclick="fazerLogin()" id="btnLogin" class="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium py-2 px-3 rounded-md transition duration-300 flex items-center gap-2">
+                            <button onclick="fazerLogin()" id="btnLogin" class="bg-white/20 hover:bg-white/30 text-white text-sm font-medium py-2 px-3 rounded-md transition duration-300 flex items-center gap-2">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                                <span class="hidden sm:inline">Entrar</span>
+                                Entrar
                             </button>
                         </div>
                         <div id="userArea" class="hidden flex items-center gap-2">
-                            <img id="userPhoto" src="" alt="" class="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-white/50">
-                            <span id="userName" class="text-white text-xs sm:text-sm hidden md:inline"></span>
+                            <img id="userPhoto" src="" alt="" class="w-8 h-8 rounded-full border-2 border-white/50">
+                            <span id="userName" class="text-white text-sm hidden md:inline"></span>
                             <button onclick="fazerLogout()" class="bg-white/20 hover:bg-white/30 text-white text-xs py-1 px-2 rounded transition" title="Sair">
                                 Sair
                             </button>
                         </div>
-                        <div class="h-6 w-px bg-white/30 mx-1 hidden sm:block"></div>
-                        <button onclick="limparFormulario()" class="btn-secondary text-xs sm:text-sm py-2 px-2 sm:px-4">
-                            🔄 <span class="hidden sm:inline">Novo</span>
+                        <div class="h-6 w-px bg-white/30 mx-1"></div>
+                        <button onclick="limparFormulario()" class="btn-secondary">
+                            🔄 Novo
                         </button>
-                        <button onclick="exportarPDF()" class="bg-indigo-800 hover:bg-indigo-900 text-white font-medium py-2 px-2 sm:px-4 rounded-md transition duration-300 text-xs sm:text-sm">
-                            📄 <span class="hidden sm:inline">Exportar PDF</span>
+                        <button onclick="exportarPDF()" class="bg-indigo-800 hover:bg-indigo-900 text-white font-medium py-2 px-4 rounded-md transition duration-300">
+                            📄 Exportar PDF
                         </button>
                     </div>
                 </div>
@@ -516,7 +390,7 @@
                         <!-- Card: Custos Extras -->
                         <div class="card-section">
                             <h2 class="card-title">🎨 Custos Extras (Opcional)</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="input-group">
                                     <label class="input-label">
                                         Pintura / Acabamento (R$)
@@ -536,31 +410,6 @@
                                         </span>
                                     </label>
                                     <input type="number" id="outrosCustos" class="input-field" placeholder="Ex: 10.00" min="0" step="0.01" oninput="calcular()">
-                                </div>
-                                <div class="input-group">
-                                    <label class="input-label">
-                                        💳 Forma de Pagamento
-                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
-                                            ℹ️
-                                            <span class="tooltiptext">Selecione a forma de pagamento para aplicar a taxa correspondente</span>
-                                        </span>
-                                    </label>
-                                    <select id="formaPagamento" class="input-field" onchange="calcular()">
-                                        <option value="pix">💵 Pix / Dinheiro (sem taxa)</option>
-                                        <option value="debito">💳 Débito</option>
-                                        <option value="1x">💳 1x Crédito</option>
-                                        <option value="2x">💳 2x Crédito</option>
-                                        <option value="3x">💳 3x Crédito</option>
-                                        <option value="4x">💳 4x Crédito</option>
-                                        <option value="5x">💳 5x Crédito</option>
-                                        <option value="6x">💳 6x Crédito</option>
-                                        <option value="7x">💳 7x Crédito</option>
-                                        <option value="8x">💳 8x Crédito</option>
-                                        <option value="9x">💳 9x Crédito</option>
-                                        <option value="10x">💳 10x Crédito</option>
-                                        <option value="11x">💳 11x Crédito</option>
-                                        <option value="12x">💳 12x Crédito</option>
-                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -603,10 +452,6 @@
                                     <div class="cost-row" id="rowOutros" style="display: none;">
                                         <span class="text-gray-600">📦 Outros custos</span>
                                         <span class="font-medium" id="custoOutros">R$ 0,00</span>
-                                    </div>
-                                    <div class="cost-row" id="rowTaxaCartao" style="display: none;">
-                                        <span class="text-gray-600">💳 Taxa de pagamento</span>
-                                        <span class="font-medium" id="custoTaxaCartao">R$ 0,00</span>
                                     </div>
                                 </div>
                             </div>
@@ -652,8 +497,8 @@
                                 <button onclick="salvarOrcamento()" class="btn-primary flex-1">
                                     💾 Salvar
                                 </button>
-                                <button onclick="copiarOrcamento()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-md transition flex items-center gap-1" title="Copiar orçamento para WhatsApp">
-                                    📋 <span class="text-xs hidden sm:inline">Copiar</span>
+                                <button onclick="copiarOrcamento()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-md transition">
+                                    📋
                                 </button>
                             </div>
                             
@@ -947,70 +792,6 @@
                                             </span>
                                         </label>
                                         <input type="number" id="configFatorMaoObra" class="input-field" placeholder="Ex: 20" min="0" max="100" value="20">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Taxas de Pagamento -->
-                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                                <h3 class="font-semibold text-green-800 mb-3">💳 Taxas de Pagamento</h3>
-                                <p class="text-xs text-green-600 mb-3">Configure as taxas para cada forma de pagamento. Use 0 para pagamentos sem taxa.</p>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">Pix / Dinheiro (%)</label>
-                                        <input type="number" id="taxaPix" class="input-field text-sm" value="0" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">Débito (%)</label>
-                                        <input type="number" id="taxaDebito" class="input-field text-sm" value="1.5" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">1x Crédito (%)</label>
-                                        <input type="number" id="taxa1x" class="input-field text-sm" value="3" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">2x Crédito (%)</label>
-                                        <input type="number" id="taxa2x" class="input-field text-sm" value="4" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">3x Crédito (%)</label>
-                                        <input type="number" id="taxa3x" class="input-field text-sm" value="5" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">4x Crédito (%)</label>
-                                        <input type="number" id="taxa4x" class="input-field text-sm" value="6" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">5x Crédito (%)</label>
-                                        <input type="number" id="taxa5x" class="input-field text-sm" value="7" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">6x Crédito (%)</label>
-                                        <input type="number" id="taxa6x" class="input-field text-sm" value="8" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">7x Crédito (%)</label>
-                                        <input type="number" id="taxa7x" class="input-field text-sm" value="9" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">8x Crédito (%)</label>
-                                        <input type="number" id="taxa8x" class="input-field text-sm" value="10" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">9x Crédito (%)</label>
-                                        <input type="number" id="taxa9x" class="input-field text-sm" value="11" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">10x Crédito (%)</label>
-                                        <input type="number" id="taxa10x" class="input-field text-sm" value="12" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">11x Crédito (%)</label>
-                                        <input type="number" id="taxa11x" class="input-field text-sm" value="13" min="0" step="0.1">
-                                    </div>
-                                    <div class="input-group">
-                                        <label class="input-label text-xs">12x Crédito (%)</label>
-                                        <input type="number" id="taxa12x" class="input-field text-sm" value="14" min="0" step="0.1">
                                     </div>
                                 </div>
                             </div>
@@ -1680,23 +1461,7 @@
                 maoObraHora: 20.00,
                 fatorMaoObra: 20,
                 nomeEmpresa: 'Minha Empresa 3D',
-                contatoEmpresa: '@minhaempresa',
-                taxas: {
-                    pix: 0,
-                    debito: 1.5,
-                    '1x': 3,
-                    '2x': 4,
-                    '3x': 5,
-                    '4x': 6,
-                    '5x': 7,
-                    '6x': 8,
-                    '7x': 9,
-                    '8x': 10,
-                    '9x': 11,
-                    '10x': 12,
-                    '11x': 13,
-                    '12x': 14
-                }
+                contatoEmpresa: '@minhaempresa'
             };
         }
         
@@ -1708,23 +1473,6 @@
             document.getElementById('configFatorMaoObra').value = c.fatorMaoObra;
             document.getElementById('configNomeEmpresa').value = c.nomeEmpresa || '';
             document.getElementById('configContatoEmpresa').value = c.contatoEmpresa || '';
-            
-            // Carregar taxas
-            const taxas = c.taxas || {};
-            document.getElementById('taxaPix').value = taxas.pix ?? 0;
-            document.getElementById('taxaDebito').value = taxas.debito ?? 1.5;
-            document.getElementById('taxa1x').value = taxas['1x'] ?? 3;
-            document.getElementById('taxa2x').value = taxas['2x'] ?? 4;
-            document.getElementById('taxa3x').value = taxas['3x'] ?? 5;
-            document.getElementById('taxa4x').value = taxas['4x'] ?? 6;
-            document.getElementById('taxa5x').value = taxas['5x'] ?? 7;
-            document.getElementById('taxa6x').value = taxas['6x'] ?? 8;
-            document.getElementById('taxa7x').value = taxas['7x'] ?? 9;
-            document.getElementById('taxa8x').value = taxas['8x'] ?? 10;
-            document.getElementById('taxa9x').value = taxas['9x'] ?? 11;
-            document.getElementById('taxa10x').value = taxas['10x'] ?? 12;
-            document.getElementById('taxa11x').value = taxas['11x'] ?? 13;
-            document.getElementById('taxa12x').value = taxas['12x'] ?? 14;
         }
         
         function salvarConfiguracoes() {
@@ -1734,23 +1482,7 @@
                 maoObraHora: parseNum(document.getElementById('configMaoObra').value),
                 fatorMaoObra: parseNum(document.getElementById('configFatorMaoObra').value),
                 nomeEmpresa: document.getElementById('configNomeEmpresa').value || 'Minha Empresa 3D',
-                contatoEmpresa: document.getElementById('configContatoEmpresa').value || '',
-                taxas: {
-                    pix: parseNum(document.getElementById('taxaPix').value),
-                    debito: parseNum(document.getElementById('taxaDebito').value),
-                    '1x': parseNum(document.getElementById('taxa1x').value),
-                    '2x': parseNum(document.getElementById('taxa2x').value),
-                    '3x': parseNum(document.getElementById('taxa3x').value),
-                    '4x': parseNum(document.getElementById('taxa4x').value),
-                    '5x': parseNum(document.getElementById('taxa5x').value),
-                    '6x': parseNum(document.getElementById('taxa6x').value),
-                    '7x': parseNum(document.getElementById('taxa7x').value),
-                    '8x': parseNum(document.getElementById('taxa8x').value),
-                    '9x': parseNum(document.getElementById('taxa9x').value),
-                    '10x': parseNum(document.getElementById('taxa10x').value),
-                    '11x': parseNum(document.getElementById('taxa11x').value),
-                    '12x': parseNum(document.getElementById('taxa12x').value)
-                }
+                contatoEmpresa: document.getElementById('configContatoEmpresa').value || ''
             };
             localStorage.setItem('config3d', JSON.stringify(config));
             if (currentUser) salvarDadosFirebase();
@@ -2138,7 +1870,6 @@
             const pintura = parseNum(document.getElementById('valorPintura').value);
             const outros = parseNum(document.getElementById('outrosCustos').value);
             const markup = parseNum(document.getElementById('markup').value);
-            const formaPagamento = document.getElementById('formaPagamento').value;
             
             const tempoTotal = horas + (minutos / 60);
             
@@ -2162,23 +1893,12 @@
             const custoPintura = pintura;
             const custoOutros = outros;
             
-            // CUSTO TOTAL SEM TAXA
-            const custoTotalSemTaxa = custoMaterial + custoEnergia + custoDepreciacao + custoManutencao + custoMaoObra + custoPintura + custoOutros;
+            // CUSTO TOTAL
+            const custoTotal = custoMaterial + custoEnergia + custoDepreciacao + custoManutencao + custoMaoObra + custoPintura + custoOutros;
             
             // MARKUP (único lugar onde entra o lucro)
-            const valorLucro = custoTotalSemTaxa * (markup / 100);
-            const precoAntesCartao = custoTotalSemTaxa + valorLucro;
-            
-            // 8. Taxa de pagamento (aplicada sobre o preço com lucro)
-            const taxas = config.taxas || {};
-            const taxaPercent = taxas[formaPagamento] ?? 0;
-            const custoTaxaCartao = precoAntesCartao * (taxaPercent / 100);
-            
-            // CUSTO TOTAL COM TAXA
-            const custoTotal = custoTotalSemTaxa + custoTaxaCartao;
-            
-            // PREÇO FINAL
-            const precoFinal = precoAntesCartao + custoTaxaCartao;
+            const valorLucro = custoTotal * (markup / 100);
+            const precoFinal = custoTotal + valorLucro;
             
             // ========== ATUALIZAR UI ==========
             document.getElementById('custoMaterial').textContent = formatarMoeda(custoMaterial);
@@ -2188,7 +1908,6 @@
             document.getElementById('custoMaoObra').textContent = formatarMoeda(custoMaoObra);
             document.getElementById('custoPintura').textContent = formatarMoeda(custoPintura);
             document.getElementById('custoOutros').textContent = formatarMoeda(custoOutros);
-            document.getElementById('custoTaxaCartao').textContent = formatarMoeda(custoTaxaCartao) + ` (${taxaPercent}%)`;
             document.getElementById('custoTotal').textContent = formatarMoeda(custoTotal);
             document.getElementById('valorLucro').textContent = formatarMoeda(valorLucro);
             document.getElementById('precoFinal').textContent = formatarMoeda(precoFinal);
@@ -2196,7 +1915,6 @@
             // Mostrar/ocultar extras
             document.getElementById('rowPintura').style.display = custoPintura > 0 ? 'flex' : 'none';
             document.getElementById('rowOutros').style.display = custoOutros > 0 ? 'flex' : 'none';
-            document.getElementById('rowTaxaCartao').style.display = custoTaxaCartao > 0 ? 'flex' : 'none';
             
             // Salvar para uso posterior
             ultimoOrcamento = {
@@ -2207,8 +1925,7 @@
                 filamentoId: filamentoSelecionado ? filamentoSelecionado.id : null,
                 peso, precoFilamento, horas, minutos, tempoTotal,
                 custoMaterial, custoEnergia, custoDepreciacao, custoManutencao, custoMaoObra,
-                custoPintura, custoOutros, custoTaxaCartao, formaPagamento, taxaPercent,
-                custoTotal, markup, valorLucro, precoFinal,
+                custoPintura, custoOutros, custoTotal, markup, valorLucro, precoFinal,
                 data: new Date().toLocaleDateString('pt-BR'),
                 dataHora: new Date().toLocaleString('pt-BR')
             };
@@ -2216,10 +1933,9 @@
         
         function zerarResultados() {
             ['custoMaterial', 'custoEnergia', 'custoDepreciacao', 'custoManutencao', 'custoMaoObra', 
-             'custoPintura', 'custoOutros', 'custoTaxaCartao', 'custoTotal', 'valorLucro', 'precoFinal'].forEach(id => {
+             'custoPintura', 'custoOutros', 'custoTotal', 'valorLucro', 'precoFinal'].forEach(id => {
                 document.getElementById(id).textContent = 'R$ 0,00';
             });
-            document.getElementById('rowTaxaCartao').style.display = 'none';
         }
         
         function limparFormulario() {
@@ -2232,7 +1948,6 @@
             document.getElementById('tempoMinutos').value = '';
             document.getElementById('valorPintura').value = '';
             document.getElementById('outrosCustos').value = '';
-            document.getElementById('formaPagamento').value = 'pix';
             document.getElementById('markup').value = '50';
             calcular();
             toast('🔄 Formulário limpo');
@@ -2284,6 +1999,7 @@
             txt += `\n📐 *Especificações:*\n`;
             if (o.filamento && o.filamento !== '-') txt += `• Material: ${o.filamento}\n`;
             txt += `• Peso: ${o.peso}g\n`;
+            txt += `• Tempo de produção: ${o.horas}h ${o.minutos}min\n`;
             txt += `\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
             txt += `💰 *VALOR: ${formatarMoeda(o.precoFinal)}*\n`;
             txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
@@ -2663,6 +2379,10 @@
                         <div class="flex justify-between">
                             <span class="text-gray-600">Peso:</span>
                             <span class="font-medium text-gray-800">${o.peso}g</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tempo de produção:</span>
+                            <span class="font-medium text-gray-800">${o.horas}h ${o.minutos}min</span>
                         </div>
                     </div>
                 </div>
