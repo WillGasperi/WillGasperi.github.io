@@ -26,6 +26,19 @@
             background-color: #f0f4f8;
         }
         
+        /* Gradiente animado */
+        .bg-gradient-to-r {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea, #db2777, #9333ea, #7c3aed, #4f46e5) !important;
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+        }
+        
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
         .input-group {
             transition: all 0.3s ease;
         }
