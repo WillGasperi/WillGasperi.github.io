@@ -1,0 +1,2714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8722541060502556"
+     crossorigin="anonymous"></script>
+    <meta name="google-adsense-account" content="ca-pub-8722541060502556">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camboriú 3D - Calculadora de Orçamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+        }
+        
+        .input-group {
+            transition: all 0.3s ease;
+        }
+        
+        .input-group:hover {
+            transform: translateY(-2px);
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .result-card {
+            transition: all 0.3s ease;
+        }
+        
+        .result-card:hover {
+            transform: scale(1.02);
+        }
+        
+        .tab {
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #4f46e5;
+            color: #4f46e5;
+        }
+        
+        .tab:hover:not(.active) {
+            border-bottom: 3px solid #818cf8;
+            color: #818cf8;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .card-section {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        
+        .input-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .input-field:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4338ca;
+            transform: scale(1.02);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: #4f46e5;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #eef2ff;
+        }
+        
+        .cost-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            padding: 0.25rem 0;
+        }
+        
+        .printer-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .printer-option:hover {
+            border-color: #a5b4fc;
+        }
+        
+        .printer-option.selected {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .subtab {
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+        
+        .subtab.active {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background-color: #eef2ff;
+        }
+        
+        .subtab:hover:not(.active) {
+            background-color: #f9fafb;
+        }
+        
+        /* ==================== RESPONSIVIDADE MOBILE ==================== */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .card-section {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .card-title {
+                font-size: 1rem;
+            }
+            
+            .input-label {
+                font-size: 0.75rem;
+            }
+            
+            .input-field {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+            
+            /* Header responsivo */
+            .header-buttons {
+                flex-wrap: wrap;
+                gap: 0.5rem !important;
+            }
+            
+            .header-buttons button {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            /* Tabs responsivo */
+            .tab {
+                padding: 0.75rem 0.5rem !important;
+                font-size: 0.7rem !important;
+            }
+            
+            /* Grid responsivo */
+            .grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Impressora select responsivo */
+            #impressoraSelect {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .printer-option {
+                padding: 0.5rem;
+            }
+            
+            .printer-option h3 {
+                font-size: 0.875rem;
+            }
+            
+            .printer-option p {
+                font-size: 0.7rem;
+            }
+            
+            /* Resultado responsivo */
+            .cost-row {
+                font-size: 0.75rem;
+            }
+            
+            #precoFinal {
+                font-size: 1.75rem !important;
+            }
+            
+            #valorLucro {
+                font-size: 1rem !important;
+            }
+            
+            /* Botões de ação */
+            .btn-primary {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            /* Subtabs */
+            .subtab {
+                font-size: 0.65rem !important;
+                padding: 0.5rem 0.25rem !important;
+            }
+            
+            /* Tabela histórico */
+            table {
+                font-size: 0.7rem;
+            }
+            
+            table th, table td {
+                padding: 0.5rem 0.25rem !important;
+            }
+            
+            /* Footer */
+            footer {
+                font-size: 0.8rem;
+            }
+            
+            footer .grid {
+                gap: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .tab {
+                font-size: 0.6rem !important;
+                padding: 0.5rem 0.25rem !important;
+            }
+            
+            .tab span {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            #precoFinal {
+                font-size: 1.5rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Estrutura com Ads Laterais -->
+    <div class="flex justify-center">
+        
+        <!-- Ad Lateral Esquerdo (Desktop) -->
+        <div class="hidden xl:block w-40 shrink-0 pt-4 pl-2">
+            <div class="sticky top-4">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8722541060502556"
+                     data-ad-slot="auto"
+                     data-ad-format="vertical"
+                     data-full-width-responsive="false"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+        </div>
+        
+        <!-- Conteúdo Principal -->
+        <div class="min-h-screen py-4 px-4 sm:px-6 lg:px-8 flex-1 max-w-7xl">
+            <div class="max-w-7xl mx-auto">
+            
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-4 sm:p-6 mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-center sm:text-left">
+                        <h1 class="text-xl sm:text-3xl font-bold text-white">Camboriú 3D</h1>
+                        <p class="text-indigo-100 mt-1 text-sm sm:text-base">Calculadora de Orçamentos</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-center justify-center header-buttons">
+                        <!-- Botão de Login -->
+                        <div id="loginArea">
+                            <button onclick="fazerLogin()" id="btnLogin" class="bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium py-2 px-3 rounded-md transition duration-300 flex items-center gap-2">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                                <span class="hidden sm:inline">Entrar</span>
+                            </button>
+                        </div>
+                        <div id="userArea" class="hidden flex items-center gap-2">
+                            <img id="userPhoto" src="" alt="" class="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-white/50">
+                            <span id="userName" class="text-white text-xs sm:text-sm hidden md:inline"></span>
+                            <button onclick="fazerLogout()" class="bg-white/20 hover:bg-white/30 text-white text-xs py-1 px-2 rounded transition" title="Sair">
+                                Sair
+                            </button>
+                        </div>
+                        <div class="h-6 w-px bg-white/30 mx-1 hidden sm:block"></div>
+                        <button onclick="limparFormulario()" class="btn-secondary text-xs sm:text-sm py-2 px-2 sm:px-4">
+                            🔄 <span class="hidden sm:inline">Novo</span>
+                        </button>
+                        <button onclick="exportarPDF()" class="bg-indigo-800 hover:bg-indigo-900 text-white font-medium py-2 px-2 sm:px-4 rounded-md transition duration-300 text-xs sm:text-sm">
+                            📄 <span class="hidden sm:inline">Exportar PDF</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- Status de sincronização -->
+                <div id="syncStatus" class="hidden mt-3 text-center">
+                    <span class="text-white/80 text-xs bg-white/10 px-3 py-1 rounded-full">
+                        ☁️ <span id="syncText">Dados sincronizados na nuvem</span>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Ad Horizontal (Mobile/Tablet) -->
+            <div class="xl:hidden mb-4">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8722541060502556"
+                     data-ad-slot="auto"
+                     data-ad-format="horizontal"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            
+            <!-- Tabs -->
+            <div class="bg-white rounded-lg shadow-md mb-6">
+                <div class="flex overflow-x-auto">
+                    <button class="tab active flex-1 py-4 px-6 text-center font-medium" data-tab="calculadora" onclick="mudarTab('calculadora')">
+                        🧮 Calculadora
+                    </button>
+                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="impressoras" onclick="mudarTab('impressoras')">
+                        🖨️ Impressoras
+                    </button>
+                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="filamentos" onclick="mudarTab('filamentos')">
+                        🧵 Filamentos
+                    </button>
+                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="configuracoes" onclick="mudarTab('configuracoes')">
+                        ⚙️ Configurações
+                    </button>
+                    <button class="tab flex-1 py-4 px-6 text-center font-medium" data-tab="historico" onclick="mudarTab('historico')">
+                        📋 Histórico
+                    </button>
+                </div>
+            </div>
+            
+            <!-- ==================== ABA CALCULADORA ==================== -->
+            <div id="calculadoraTab" class="tab-content animate-fade">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Coluna Esquerda: Formulário -->
+                    <div class="lg:col-span-2 space-y-6">
+                        
+                        <!-- Card: Dados do Projeto -->
+                        <div class="card-section">
+                            <h2 class="card-title">📦 Dados do Projeto</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="input-group">
+                                    <label class="input-label">Nome da Peça</label>
+                                    <input type="text" id="nomePeca" class="input-field" placeholder="Ex: Vaso Decorativo">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Cliente</label>
+                                    <input type="text" id="clientePeca" class="input-field" placeholder="Ex: João Silva">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card: Impressora -->
+                        <div class="card-section">
+                            <h2 class="card-title">🖨️ Impressora</h2>
+                            <div id="impressoraSelect" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                <!-- Impressoras carregadas via JS -->
+                            </div>
+                            <p id="semImpressoraMsg" class="text-gray-500 text-center py-4 hidden">
+                                Nenhuma impressora cadastrada. 
+                                <a href="#" onclick="mudarTab('impressoras')" class="text-indigo-600 hover:underline">Cadastre uma</a>
+                            </p>
+                        </div>
+                        
+                        <!-- Card: Material e Tempo -->
+                        <div class="card-section">
+                            <h2 class="card-title">🧵 Material e Tempo</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Peso da Peça (gramas)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Peso informado pelo fatiador (Cura, PrusaSlicer, etc)</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="pesoPeca" class="input-field" placeholder="Ex: 50" min="0" step="0.1" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Filamento
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Selecione o filamento cadastrado ou cadastre um novo na aba Filamentos</span>
+                                        </span>
+                                    </label>
+                                    <select id="filamentoSelect" class="input-field" onchange="selecionarFilamento()">
+                                        <option value="">Selecione um filamento</option>
+                                    </select>
+                                    <p id="semFilamentoMsg" class="text-xs text-orange-500 mt-1 hidden">
+                                        Nenhum filamento cadastrado. <a href="#" onclick="mudarTab('filamentos')" class="text-indigo-600 hover:underline">Cadastre um</a>
+                                    </p>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Tempo de Impressão (horas)</label>
+                                    <input type="number" id="tempoHoras" class="input-field" placeholder="Ex: 5" min="0" step="0.1" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Tempo de Impressão (minutos)</label>
+                                    <input type="number" id="tempoMinutos" class="input-field" placeholder="Ex: 30" min="0" max="59" oninput="calcular()">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card: Custos Extras -->
+                        <div class="card-section">
+                            <h2 class="card-title">🎨 Custos Extras (Opcional)</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Pintura / Acabamento (R$)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Valor fixo cobrado pela pintura ou acabamento especial</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="valorPintura" class="input-field" placeholder="Ex: 50.00" min="0" step="0.01" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Outros Custos (R$)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Embalagem especial, parafusos, insertos, etc</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="outrosCustos" class="input-field" placeholder="Ex: 10.00" min="0" step="0.01" oninput="calcular()">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        💳 Forma de Pagamento
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Selecione a forma de pagamento para aplicar a taxa correspondente</span>
+                                        </span>
+                                    </label>
+                                    <select id="formaPagamento" class="input-field" onchange="calcular()">
+                                        <option value="pix">💵 Pix / Dinheiro (sem taxa)</option>
+                                        <option value="debito">💳 Débito</option>
+                                        <option value="1x">💳 1x Crédito</option>
+                                        <option value="2x">💳 2x Crédito</option>
+                                        <option value="3x">💳 3x Crédito</option>
+                                        <option value="4x">💳 4x Crédito</option>
+                                        <option value="5x">💳 5x Crédito</option>
+                                        <option value="6x">💳 6x Crédito</option>
+                                        <option value="7x">💳 7x Crédito</option>
+                                        <option value="8x">💳 8x Crédito</option>
+                                        <option value="9x">💳 9x Crédito</option>
+                                        <option value="10x">💳 10x Crédito</option>
+                                        <option value="11x">💳 11x Crédito</option>
+                                        <option value="12x">💳 12x Crédito</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Coluna Direita: Resultado -->
+                    <div class="lg:col-span-1">
+                        <div class="card-section sticky top-4">
+                            <h2 class="card-title">💰 Resultado do Orçamento</h2>
+                            
+                            <!-- Detalhamento -->
+                            <div class="mb-4">
+                                <h3 class="font-medium text-gray-700 mb-2">Custos de Produção</h3>
+                                <div class="space-y-1 text-sm">
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">🧵 Material (filamento)</span>
+                                        <span class="font-medium" id="custoMaterial">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">⚡ Energia elétrica</span>
+                                        <span class="font-medium" id="custoEnergia">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">📉 Depreciação da máquina</span>
+                                        <span class="font-medium" id="custoDepreciacao">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">🔧 Manutenção</span>
+                                        <span class="font-medium" id="custoManutencao">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row">
+                                        <span class="text-gray-600">👷 Mão de obra</span>
+                                        <span class="font-medium" id="custoMaoObra">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row" id="rowPintura" style="display: none;">
+                                        <span class="text-gray-600">🎨 Pintura / Acabamento</span>
+                                        <span class="font-medium" id="custoPintura">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row" id="rowOutros" style="display: none;">
+                                        <span class="text-gray-600">📦 Outros custos</span>
+                                        <span class="font-medium" id="custoOutros">R$ 0,00</span>
+                                    </div>
+                                    <div class="cost-row" id="rowTaxaCartao" style="display: none;">
+                                        <span class="text-gray-600">💳 Taxa de pagamento</span>
+                                        <span class="font-medium" id="custoTaxaCartao">R$ 0,00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custo Total -->
+                            <div class="bg-gray-100 rounded-lg p-3 mb-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-700">Custo Total:</span>
+                                    <span class="text-xl font-bold text-gray-800" id="custoTotal">R$ 0,00</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Markup -->
+                            <div class="mb-4">
+                                <label class="input-label">
+                                    Markup (sua margem de lucro) %
+                                    <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                        ℹ️
+                                        <span class="tooltiptext">Porcentagem de lucro sobre o custo. Ex: 50% = você ganha metade do custo como lucro.</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="markup" class="input-field" value="50" min="0" step="1" oninput="calcular()">
+                            </div>
+                            
+                            <!-- Lucro -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-green-700">Seu Lucro:</span>
+                                    <span class="text-xl font-bold text-green-600" id="valorLucro">R$ 0,00</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Preço Final -->
+                            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-4 mb-4 text-white">
+                                <div class="text-center">
+                                    <p class="text-indigo-100 text-sm">Preço Final para o Cliente</p>
+                                    <p class="text-3xl font-bold" id="precoFinal">R$ 0,00</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Botões -->
+                            <div class="flex gap-2">
+                                <button onclick="salvarOrcamento()" class="btn-primary flex-1">
+                                    💾 Salvar
+                                </button>
+                                <button onclick="copiarOrcamento()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-md transition flex items-center gap-1" title="Copiar orçamento para WhatsApp">
+                                    📋 <span class="text-xs hidden sm:inline">Copiar</span>
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- ==================== ABA IMPRESSORAS ==================== -->
+            <div id="impressorasTab" class="tab-content hidden animate-fade">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Formulário de Cadastro -->
+                    <div class="lg:col-span-1">
+                        <div class="card-section sticky top-4">
+                            <h2 class="card-title">➕ Cadastrar Impressora</h2>
+                            <div class="space-y-4">
+                                <div class="input-group">
+                                    <label class="input-label">Nome da Impressora</label>
+                                    <input type="text" id="nomeImpressora" class="input-field" placeholder="Ex: Ender 3 V2">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Valor Pago (R$)</label>
+                                    <input type="number" id="valorImpressora" class="input-field" placeholder="Ex: 1500.00" min="0" step="0.01">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Vida Útil (horas)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Tempo estimado de funcionamento. Geralmente 3.000 a 10.000 horas</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="vidaUtilImpressora" class="input-field" placeholder="Ex: 5000" min="1" value="5000">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Potência (Watts)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Consumo médio em Watts. Verifique na fonte ou manual (geralmente 200-500W)</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="potenciaImpressora" class="input-field" placeholder="Ex: 350" min="0">
+                                </div>
+                                <button onclick="salvarImpressora()" class="btn-primary w-full">
+                                    💾 Salvar Impressora
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Impressoras -->
+                    <div class="lg:col-span-2">
+                        <div class="card-section">
+                            <h2 class="card-title">📋 Impressoras Cadastradas</h2>
+                            <div id="listaImpressoras" class="space-y-3">
+                                <!-- Lista via JS -->
+                            </div>
+                            <div id="semImpressoras" class="text-center py-10 text-gray-500">
+                                <div class="text-5xl mb-3">🖨️</div>
+                                <p>Nenhuma impressora cadastrada</p>
+                                <p class="text-sm">Cadastre sua primeira impressora no formulário ao lado</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- ==================== ABA FILAMENTOS ==================== -->
+            <div id="filamentosTab" class="tab-content hidden animate-fade">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Formulário de Cadastro -->
+                    <div class="lg:col-span-1">
+                        <div class="card-section sticky top-4">
+                            <h2 class="card-title" id="tituloFormFilamento">➕ Cadastrar Filamento</h2>
+                            <div class="space-y-4">
+                                <input type="hidden" id="editandoFilamentoId" value="">
+                                <div class="input-group">
+                                    <label class="input-label">Tipo de Filamento</label>
+                                    <input type="text" id="tipoFilamento" class="input-field" placeholder="Ex: PLA Branco, PETG Preto, ABS Cinza">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Custo do Filamento (R$/kg)</label>
+                                    <input type="number" id="custoFilamento" class="input-field" placeholder="Ex: 120.00" min="0" step="0.01">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">
+                                        Estoque Disponível (gramas)
+                                        <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                            ℹ️
+                                            <span class="tooltiptext">Quantidade em gramas que você tem deste filamento (1kg = 1000g)</span>
+                                        </span>
+                                    </label>
+                                    <input type="number" id="estoqueFilamento" class="input-field" placeholder="Ex: 1000 (= 1kg)" min="0" step="1">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Observações (opcional)</label>
+                                    <textarea id="obsFilamento" class="input-field" rows="2" placeholder="Ex: Comprado na loja X, boa qualidade, cor exata..."></textarea>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="salvarFilamento()" class="btn-primary flex-1" id="btnSalvarFilamento">
+                                        💾 Salvar
+                                    </button>
+                                    <button onclick="cancelarEdicaoFilamento()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-3 px-4 rounded-md transition hidden" id="btnCancelarFilamento">
+                                        ✖️
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lista de Filamentos -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            
+                            <!-- Coluna PLA -->
+                            <div class="card-section">
+                                <h2 class="card-title text-blue-700">🔵 Filamentos PLA</h2>
+                                
+                                <!-- Resumo de Estoque PLA -->
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4" id="resumoEstoquePLA">
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-blue-700">📦 Estoque PLA:</span>
+                                        <span class="font-bold text-blue-800" id="totalEstoquePLA">0g</span>
+                                    </div>
+                                </div>
+                                
+                                <div id="listaFilamentosPLA" class="space-y-3">
+                                    <!-- Lista via JS -->
+                                </div>
+                                <div id="semFilamentosPLA" class="text-center py-6 text-gray-500">
+                                    <div class="text-3xl mb-2">🔵</div>
+                                    <p class="text-sm">Nenhum PLA cadastrado</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Coluna PETG -->
+                            <div class="card-section">
+                                <h2 class="card-title text-orange-700">🟠 Filamentos PETG</h2>
+                                
+                                <!-- Resumo de Estoque PETG -->
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4" id="resumoEstoquePETG">
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-orange-700">📦 Estoque PETG:</span>
+                                        <span class="font-bold text-orange-800" id="totalEstoquePETG">0g</span>
+                                    </div>
+                                </div>
+                                
+                                <div id="listaFilamentosPETG" class="space-y-3">
+                                    <!-- Lista via JS -->
+                                </div>
+                                <div id="semFilamentosPETG" class="text-center py-6 text-gray-500">
+                                    <div class="text-3xl mb-2">🟠</div>
+                                    <p class="text-sm">Nenhum PETG cadastrado</p>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <!-- Outros filamentos (ABS, TPU, etc) -->
+                        <div class="card-section mt-4" id="secaoOutrosFilamentos" style="display: none;">
+                            <h2 class="card-title text-gray-700">⚪ Outros Filamentos</h2>
+                            
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4" id="resumoEstoqueOutros">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-700">📦 Estoque Outros:</span>
+                                    <span class="font-bold text-gray-800" id="totalEstoqueOutros">0g</span>
+                                </div>
+                            </div>
+                            
+                            <div id="listaFilamentosOutros" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <!-- Lista via JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- ==================== ABA CONFIGURAÇÕES ==================== -->
+            <div id="configuracoesTab" class="tab-content hidden animate-fade">
+                <div class="max-w-2xl mx-auto">
+                    <div class="card-section">
+                        <h2 class="card-title">⚙️ Configurações Gerais</h2>
+                        <p class="text-gray-600 mb-6">Configure os valores padrão que serão usados em todos os orçamentos.</p>
+                        
+                        <div class="space-y-6">
+                            
+                            <!-- Código da Empresa (Cloud) -->
+                            <div id="secaoCodigoEmpresa" class="bg-purple-50 border border-purple-200 rounded-lg p-4 hidden">
+                                <h3 class="font-semibold text-purple-800 mb-3">☁️ Sincronização na Nuvem</h3>
+                                <p class="text-sm text-purple-700 mb-4">Use o mesmo código em vários dispositivos ou contas para compartilhar seus dados.</p>
+                                
+                                <div class="space-y-4">
+                                    <div class="input-group">
+                                        <label class="input-label">Código da Empresa</label>
+                                        <div class="flex gap-2">
+                                            <input type="text" id="codigoEmpresa" class="input-field flex-1 uppercase font-mono" placeholder="Ex: CAMBORIU3D" maxlength="20">
+                                            <button onclick="copiarCodigoEmpresa()" class="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-2 rounded-md transition" title="Copiar código">
+                                                📋
+                                            </button>
+                                        </div>
+                                        <p class="text-xs text-purple-600 mt-1">Compartilhe este código para outras pessoas acessarem os mesmos dados</p>
+                                    </div>
+                                    
+                                    <div class="flex gap-2">
+                                        <button onclick="salvarCodigoEmpresa()" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md transition flex-1">
+                                            💾 Salvar Código
+                                        </button>
+                                        <button onclick="vincularCodigoEmpresa()" class="bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium py-2 px-4 rounded-md transition flex-1">
+                                            🔗 Vincular a Outro Código
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="infoCodigoEmpresa" class="bg-white rounded p-3 text-xs text-purple-700">
+                                        <p><strong>📌 Como funciona:</strong></p>
+                                        <ul class="list-disc list-inside mt-1 space-y-1">
+                                            <li><strong>Seu código:</strong> Todos os seus dados salvam neste código</li>
+                                            <li><strong>Vincular:</strong> Use para acessar dados de outra conta/empresa</li>
+                                            <li><strong>Compartilhar:</strong> Dê o código para funcionários/sócios</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Aviso para fazer login -->
+                            <div id="avisoLoginConfig" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-700 mb-2">☁️ Sincronização na Nuvem</h3>
+                                <p class="text-sm text-gray-600 mb-3">Faça login para salvar seus dados na nuvem e acessar de qualquer lugar.</p>
+                                <button onclick="fazerLogin()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md transition flex items-center gap-2">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                                    Entrar com Google
+                                </button>
+                            </div>
+                            
+                            <!-- Dados da Empresa -->
+                            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-indigo-800 mb-3">🏢 Dados da Sua Empresa</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="input-group">
+                                        <label class="input-label">Nome da Empresa</label>
+                                        <input type="text" id="configNomeEmpresa" class="input-field" placeholder="Ex: Camboriú 3D">
+                                        <p class="text-xs text-gray-500 mt-1">Aparecerá no PDF e texto copiado</p>
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label">Contato da Empresa</label>
+                                        <input type="text" id="configContatoEmpresa" class="input-field" placeholder="Ex: @instagram ou (47) 99999-9999">
+                                        <p class="text-xs text-gray-500 mt-1">WhatsApp, Instagram, telefone, etc.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Energia -->
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-yellow-800 mb-3">⚡ Energia Elétrica</h3>
+                                <div class="input-group">
+                                    <label class="input-label">Preço do kWh (R$)</label>
+                                    <input type="number" id="configPrecoKwh" class="input-field" placeholder="Ex: 0.85" min="0" step="0.01" value="0.85">
+                                    <p class="text-xs text-gray-500 mt-1">Consulte sua conta de luz. Média Brasil: R$ 0,70 a R$ 1,00</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Manutenção -->
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-orange-800 mb-3">🔧 Manutenção</h3>
+                                <div class="input-group">
+                                    <label class="input-label">Custo de Manutenção por Hora (R$)</label>
+                                    <input type="number" id="configManutencao" class="input-field" placeholder="Ex: 0.50" min="0" step="0.01" value="0.50">
+                                    <p class="text-xs text-gray-500 mt-1">Reserva para bicos, correias, rolamentos e outras peças</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Mão de Obra -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-blue-800 mb-3">👷 Mão de Obra</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="input-group">
+                                        <label class="input-label">Valor da Sua Hora (R$)</label>
+                                        <input type="number" id="configMaoObra" class="input-field" placeholder="Ex: 20.00" min="0" step="0.01" value="20.00">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label">
+                                            Fator de Dedicação (%)
+                                            <span class="tooltip ml-1 text-gray-400 cursor-help">
+                                                ℹ️
+                                                <span class="tooltiptext">Quanto do tempo de impressão você dedica ativamente (preparar, monitorar, finalizar). Ex: 20% = a cada 1h de impressão, você trabalha 12min.</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="configFatorMaoObra" class="input-field" placeholder="Ex: 20" min="0" max="100" value="20">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Taxas de Pagamento -->
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                <h3 class="font-semibold text-green-800 mb-3">💳 Taxas de Pagamento</h3>
+                                <p class="text-xs text-green-600 mb-3">Configure as taxas para cada forma de pagamento. Use 0 para pagamentos sem taxa.</p>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">Pix / Dinheiro (%)</label>
+                                        <input type="number" id="taxaPix" class="input-field text-sm" value="0" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">Débito (%)</label>
+                                        <input type="number" id="taxaDebito" class="input-field text-sm" value="1.5" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">1x Crédito (%)</label>
+                                        <input type="number" id="taxa1x" class="input-field text-sm" value="3" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">2x Crédito (%)</label>
+                                        <input type="number" id="taxa2x" class="input-field text-sm" value="4" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">3x Crédito (%)</label>
+                                        <input type="number" id="taxa3x" class="input-field text-sm" value="5" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">4x Crédito (%)</label>
+                                        <input type="number" id="taxa4x" class="input-field text-sm" value="6" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">5x Crédito (%)</label>
+                                        <input type="number" id="taxa5x" class="input-field text-sm" value="7" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">6x Crédito (%)</label>
+                                        <input type="number" id="taxa6x" class="input-field text-sm" value="8" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">7x Crédito (%)</label>
+                                        <input type="number" id="taxa7x" class="input-field text-sm" value="9" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">8x Crédito (%)</label>
+                                        <input type="number" id="taxa8x" class="input-field text-sm" value="10" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">9x Crédito (%)</label>
+                                        <input type="number" id="taxa9x" class="input-field text-sm" value="11" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">10x Crédito (%)</label>
+                                        <input type="number" id="taxa10x" class="input-field text-sm" value="12" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">11x Crédito (%)</label>
+                                        <input type="number" id="taxa11x" class="input-field text-sm" value="13" min="0" step="0.1">
+                                    </div>
+                                    <div class="input-group">
+                                        <label class="input-label text-xs">12x Crédito (%)</label>
+                                        <input type="number" id="taxa12x" class="input-field text-sm" value="14" min="0" step="0.1">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="salvarConfiguracoes()" class="btn-primary w-full">
+                                💾 Salvar Configurações
+                            </button>
+                            
+                        </div>
+                    </div>
+                    
+                    <!-- Info Box -->
+                    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mt-6">
+                        <h3 class="font-semibold text-indigo-800 mb-2">💡 Como funciona o cálculo?</h3>
+                        <div class="text-sm text-indigo-700 space-y-2">
+                            <p><strong>Custo Total</strong> = Material + Energia + Depreciação + Manutenção + Mão de Obra + Extras</p>
+                            <p><strong>Preço Final</strong> = Custo Total × (1 + Markup%)</p>
+                            <p class="text-xs text-indigo-600 mt-2">⚠️ Este sistema usa APENAS markup como lucro, sem duplicação de margem.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ==================== ABA HISTÓRICO ==================== -->
+            <div id="historicoTab" class="tab-content hidden animate-fade">
+                
+                <!-- Sub-abas do Histórico -->
+                <div class="bg-white rounded-lg shadow-md mb-6">
+                    <div class="flex">
+                        <button class="subtab active flex-1 py-3 px-4 text-center font-medium text-sm border-b-2" data-subtab="pendentes" onclick="mudarSubTab('pendentes')">
+                            📋 Orçamentos Pendentes
+                        </button>
+                        <button class="subtab flex-1 py-3 px-4 text-center font-medium text-sm border-b-2 border-transparent" data-subtab="vendidos" onclick="mudarSubTab('vendidos')">
+                            ✅ Vendidos
+                        </button>
+                        <button class="subtab flex-1 py-3 px-4 text-center font-medium text-sm border-b-2 border-transparent" data-subtab="recusados" onclick="mudarSubTab('recusados')">
+                            ❌ Recusados
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Sub-aba: Pendentes -->
+                <div id="pendentesSubTab" class="subtab-content">
+                    <div class="card-section">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                            <h2 class="card-title mb-0">📋 Orçamentos Pendentes</h2>
+                            <button onclick="limparHistorico()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded-md transition">
+                                🗑️ Limpar Pendentes
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Peça</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Filamento</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Custo</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Preço</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaHistorico" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="semHistorico" class="text-center py-10 text-gray-500">
+                            <div class="text-5xl mb-3">📋</div>
+                            <p>Nenhum orçamento pendente</p>
+                            <p class="text-sm">Seus orçamentos salvos aparecerão aqui</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sub-aba: Vendidos -->
+                <div id="vendidosSubTab" class="subtab-content hidden">
+                    <div class="card-section">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                            <h2 class="card-title mb-0">✅ Vendas Realizadas</h2>
+                            <div class="flex gap-2 items-center">
+                                <select id="filtroMesVendas" class="input-field text-sm py-2" onchange="carregarVendidos()">
+                                    <option value="">Todos os meses</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Resumo de Vendas -->
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                                <p class="text-green-600 text-xs">Total Vendido</p>
+                                <p class="text-xl font-bold text-green-700" id="totalVendido">R$ 0,00</p>
+                            </div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                                <p class="text-blue-600 text-xs">Lucro Total</p>
+                                <p class="text-xl font-bold text-blue-700" id="lucroTotalVendas">R$ 0,00</p>
+                            </div>
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
+                                <p class="text-purple-600 text-xs">Qtd. Vendas</p>
+                                <p class="text-xl font-bold text-purple-700" id="qtdVendas">0</p>
+                            </div>
+                            <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-center">
+                                <p class="text-sky-600 text-xs">🔵 PLA Usado</p>
+                                <p class="text-xl font-bold text-sky-700" id="totalPLAVendido">0g</p>
+                            </div>
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center">
+                                <p class="text-orange-600 text-xs">🟠 PETG Usado</p>
+                                <p class="text-xl font-bold text-orange-700" id="totalPETGVendido">0g</p>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Peça</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Filamento</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Custo</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Vendido</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Lucro</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaVendidos" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="semVendidos" class="text-center py-10 text-gray-500">
+                            <div class="text-5xl mb-3">✅</div>
+                            <p>Nenhuma venda registrada</p>
+                            <p class="text-sm">Marque orçamentos como "Vendido" para aparecerem aqui</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sub-aba: Recusados -->
+                <div id="recusadosSubTab" class="subtab-content hidden">
+                    <div class="card-section">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                            <h2 class="card-title mb-0">❌ Orçamentos Recusados</h2>
+                            <button onclick="limparRecusados()" class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded-md transition">
+                                🗑️ Limpar Recusados
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Peça</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Cliente</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Preço</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                                        <th class="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaRecusados" class="bg-white divide-y divide-gray-200">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="semRecusados" class="text-center py-10 text-gray-500">
+                            <div class="text-5xl mb-3">❌</div>
+                            <p>Nenhum orçamento recusado</p>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+    
+        <!-- Ad Lateral Direito (Desktop) -->
+        <div class="hidden xl:block w-40 shrink-0 pt-4 pr-2">
+            <div class="sticky top-4">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-8722541060502556"
+                     data-ad-slot="auto"
+                     data-ad-format="vertical"
+                     data-full-width-responsive="false"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+        </div>
+        
+    </div><!-- Fim estrutura com ads -->
+    
+    <!-- Modal PDF -->
+    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+            <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white">
+                <h3 class="text-lg font-medium text-gray-900">📄 Prévia do Orçamento</h3>
+                <button onclick="fecharModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="pdfContent" class="p-6">
+                <!-- Conteúdo do PDF -->
+            </div>
+            <div class="p-4 border-t flex gap-2 justify-end sticky bottom-0 bg-white">
+                <button onclick="fecharModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md">
+                    Cancelar
+                </button>
+                <button onclick="gerarPDF()" class="btn-primary">
+                    📥 Baixar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <span id="toastMsg"></span>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 mt-10">
+        <div class="max-w-7xl mx-auto px-6 py-10">
+            <div class="grid md:grid-cols-4 gap-8 text-center md:text-left">
+                
+                <div>
+                    <h3 class="text-white font-semibold text-xl mb-3">Camboriú 3D</h3>
+                    <p class="text-sm text-gray-400">
+                        Soluções em impressão 3D e cálculo profissional de custos para produção.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-3">Contato</h3>
+                    <p class="text-sm mb-2">
+                        📧 <a href="/cdn-cgi/l/email-protection#c9aaa6a7bda8bda689aaa8a4aba6bba0bcfaade7aaa6a4e7abbb" class="hover:text-white"><span class="__cf_email__" data-cfemail="ea8985849e8b9e85aa898b87888598839fd98ec4898587c48898">[email&#160;protected]</span></a>
+                    </p>
+                    <p class="text-sm">
+                        📸 <a href="https://instagram.com/camboriu3d" target="_blank" class="hover:text-white">@camboriu3d</a>
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-3">Informações</h3>
+                    <p class="text-sm mb-2">
+                        <a href="sobre.html" class="hover:text-white">Sobre</a>
+                    </p>
+                    <p class="text-sm mb-2">
+                        <a href="politica.html" class="hover:text-white">Política de Privacidade</a>
+                    </p>
+                    <p class="text-sm">
+                        <a href="termos.html" class="hover:text-white">Termos de Uso</a>
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-semibold text-lg mb-3">Sistema</h3>
+                    <p class="text-sm text-gray-400">
+                        Cálculo com markup único.<br>
+                        Sem duplicação de lucro.<br>
+                        Preços justos e competitivos.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
+                © 2025 Camboriú 3D — Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEpndlB4XT4Lig_mVo5_SkUAx88_DTqY0",
+            authDomain: "camboriu3d-full.firebaseapp.com",
+            projectId: "camboriu3d-full",
+            storageBucket: "camboriu3d-full.firebasestorage.app",
+            messagingSenderId: "515068632423",
+            appId: "1:515068632423:web:220daf42e3abfd3d5f23c2",
+            measurementId: "G-9H4K2DJ1J6"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let currentUser = null;
+        let codigoEmpresaAtual = null;
+        
+        // ==================== VARIÁVEIS GLOBAIS ====================
+        let impressoraSelecionada = null;
+        let filamentoSelecionado = null;
+        let ultimoOrcamento = null;
+        
+        // ==================== INICIALIZAÇÃO ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar estado de autenticação
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    mostrarUsuarioLogado(user);
+                    await carregarCodigoEmpresa();
+                    await carregarDadosFirebase();
+                    atualizarUIConfiguracao();
+                } else {
+                    currentUser = null;
+                    codigoEmpresaAtual = null;
+                    mostrarBotaoLogin();
+                    carregarDadosLocais();
+                    atualizarUIConfiguracao();
+                }
+            });
+        });
+        
+        function carregarDadosLocais() {
+            carregarConfiguracoes();
+            carregarImpressoras();
+            carregarFilamentos();
+            atualizarSelectImpressoras();
+            atualizarSelectFilamentos();
+            carregarHistorico();
+        }
+        
+        function atualizarUIConfiguracao() {
+            const secaoCodigo = document.getElementById('secaoCodigoEmpresa');
+            const avisoLogin = document.getElementById('avisoLoginConfig');
+            
+            if (currentUser) {
+                secaoCodigo.classList.remove('hidden');
+                avisoLogin.classList.add('hidden');
+                document.getElementById('codigoEmpresa').value = codigoEmpresaAtual || '';
+            } else {
+                secaoCodigo.classList.add('hidden');
+                avisoLogin.classList.remove('hidden');
+            }
+        }
+        
+        // ==================== CÓDIGO DA EMPRESA ====================
+        function gerarCodigoAleatorio() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let codigo = '';
+            for (let i = 0; i < 8; i++) {
+                codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return codigo;
+        }
+        
+        async function carregarCodigoEmpresa() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('userCodes').doc(currentUser.uid).get();
+                
+                if (userDoc.exists && userDoc.data().codigoEmpresa) {
+                    codigoEmpresaAtual = userDoc.data().codigoEmpresa;
+                } else {
+                    // Gerar código novo para usuário novo
+                    codigoEmpresaAtual = gerarCodigoAleatorio();
+                    await db.collection('userCodes').doc(currentUser.uid).set({
+                        codigoEmpresa: codigoEmpresaAtual,
+                        email: currentUser.email,
+                        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar código:', error);
+                codigoEmpresaAtual = gerarCodigoAleatorio();
+            }
+        }
+        
+        async function salvarCodigoEmpresa() {
+            if (!currentUser) {
+                toast('❌ Faça login primeiro');
+                return;
+            }
+            
+            const novoCodigo = document.getElementById('codigoEmpresa').value.trim().toUpperCase();
+            
+            if (!novoCodigo || novoCodigo.length < 3) {
+                toast('❌ Código deve ter pelo menos 3 caracteres');
+                return;
+            }
+            
+            if (!/^[A-Z0-9]+$/.test(novoCodigo)) {
+                toast('❌ Use apenas letras e números');
+                return;
+            }
+            
+            const codigoAntigo = codigoEmpresaAtual;
+            
+            try {
+                // Se está mudando de código, copiar dados do antigo para o novo
+                if (codigoAntigo && codigoAntigo !== novoCodigo) {
+                    const dadosAntigos = await db.collection('empresas').doc(codigoAntigo).get();
+                    if (dadosAntigos.exists) {
+                        // Verificar se o novo código já existe
+                        const novoDoc = await db.collection('empresas').doc(novoCodigo).get();
+                        if (novoDoc.exists) {
+                            if (!confirm('⚠️ Este código já existe! Deseja SUBSTITUIR seus dados pelos dados deste código?')) {
+                                return;
+                            }
+                        } else {
+                            // Copiar dados para novo código
+                            await db.collection('empresas').doc(novoCodigo).set(dadosAntigos.data());
+                        }
+                    }
+                }
+                
+                // Atualizar código do usuário
+                await db.collection('userCodes').doc(currentUser.uid).set({
+                    codigoEmpresa: novoCodigo,
+                    email: currentUser.email,
+                    atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                codigoEmpresaAtual = novoCodigo;
+                document.getElementById('codigoEmpresa').value = novoCodigo;
+                
+                // Recarregar dados do novo código
+                await carregarDadosFirebase();
+                
+                toast('✅ Código salvo: ' + novoCodigo);
+                
+            } catch (error) {
+                console.error('Erro ao salvar código:', error);
+                toast('❌ Erro ao salvar código');
+            }
+        }
+        
+        async function vincularCodigoEmpresa() {
+            if (!currentUser) {
+                toast('❌ Faça login primeiro');
+                return;
+            }
+            
+            const codigo = prompt('Digite o código da empresa que deseja vincular:\n\n(Seus dados locais serão substituídos pelos dados deste código)');
+            
+            if (!codigo) return;
+            
+            const codigoLimpo = codigo.trim().toUpperCase();
+            
+            if (!codigoLimpo || codigoLimpo.length < 3) {
+                toast('❌ Código inválido');
+                return;
+            }
+            
+            try {
+                // Verificar se o código existe
+                const empresaDoc = await db.collection('empresas').doc(codigoLimpo).get();
+                
+                if (!empresaDoc.exists) {
+                    toast('❌ Código não encontrado');
+                    return;
+                }
+                
+                if (!confirm(`Vincular ao código "${codigoLimpo}"?\n\nSeus dados locais serão substituídos pelos dados desta empresa.`)) {
+                    return;
+                }
+                
+                // Atualizar código do usuário
+                await db.collection('userCodes').doc(currentUser.uid).set({
+                    codigoEmpresa: codigoLimpo,
+                    email: currentUser.email,
+                    vinculadoEm: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                codigoEmpresaAtual = codigoLimpo;
+                document.getElementById('codigoEmpresa').value = codigoLimpo;
+                
+                // Carregar dados do novo código
+                await carregarDadosFirebase();
+                
+                toast('✅ Vinculado ao código: ' + codigoLimpo);
+                
+            } catch (error) {
+                console.error('Erro ao vincular:', error);
+                toast('❌ Erro ao vincular código');
+            }
+        }
+        
+        function copiarCodigoEmpresa() {
+            const codigo = document.getElementById('codigoEmpresa').value;
+            if (codigo) {
+                navigator.clipboard.writeText(codigo);
+                toast('📋 Código copiado: ' + codigo);
+            }
+        }
+        
+        // ==================== AUTENTICAÇÃO ====================
+        async function fazerLogin() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(provider);
+                toast('✅ Login realizado com sucesso!');
+            } catch (error) {
+                console.error('Erro no login:', error);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    toast('❌ Erro ao fazer login');
+                }
+            }
+        }
+        
+        async function fazerLogout() {
+            if (!confirm('Deseja sair? Seus dados continuarão salvos na nuvem.')) return;
+            try {
+                // Cancelar listener
+                if (listenerAtivo) {
+                    listenerAtivo();
+                    listenerAtivo = null;
+                }
+                await auth.signOut();
+                toast('👋 Você saiu da conta');
+                // Recarregar dados locais
+                carregarDadosLocais();
+            } catch (error) {
+                console.error('Erro no logout:', error);
+            }
+        }
+        
+        function mostrarUsuarioLogado(user) {
+            document.getElementById('loginArea').classList.add('hidden');
+            document.getElementById('userArea').classList.remove('hidden');
+            document.getElementById('userPhoto').src = user.photoURL || '';
+            document.getElementById('userName').textContent = user.displayName?.split(' ')[0] || 'Usuário';
+            document.getElementById('syncStatus').classList.remove('hidden');
+        }
+        
+        function mostrarBotaoLogin() {
+            document.getElementById('loginArea').classList.remove('hidden');
+            document.getElementById('userArea').classList.add('hidden');
+            document.getElementById('syncStatus').classList.add('hidden');
+        }
+        
+        // ==================== FIREBASE SYNC ====================
+        let listenerAtivo = null;
+        
+        async function carregarDadosFirebase() {
+            if (!currentUser || !codigoEmpresaAtual) return;
+            
+            try {
+                document.getElementById('syncText').textContent = 'Carregando dados...';
+                
+                // Cancelar listener anterior se existir
+                if (listenerAtivo) {
+                    listenerAtivo();
+                    listenerAtivo = null;
+                }
+                
+                // Ativar listener em tempo real
+                listenerAtivo = db.collection('empresas').doc(codigoEmpresaAtual)
+                    .onSnapshot((doc) => {
+                        if (doc.exists) {
+                            const dados = doc.data();
+                            
+                            // Carregar dados do Firebase para localStorage
+                            if (dados.config) localStorage.setItem('config3d', JSON.stringify(dados.config));
+                            if (dados.impressoras) localStorage.setItem('impressoras3d', JSON.stringify(dados.impressoras));
+                            if (dados.filamentos) localStorage.setItem('filamentos3d', JSON.stringify(dados.filamentos));
+                            if (dados.historico) localStorage.setItem('historico3d', JSON.stringify(dados.historico));
+                            if (dados.vendidos) localStorage.setItem('vendidos3d', JSON.stringify(dados.vendidos));
+                            if (dados.recusados) localStorage.setItem('recusados3d', JSON.stringify(dados.recusados));
+                            
+                            // Atualizar interface
+                            carregarDadosLocais();
+                            
+                            const agora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+                            document.getElementById('syncText').textContent = `🟢 Sincronizado • ${codigoEmpresaAtual} • ${agora}`;
+                        }
+                    }, (error) => {
+                        console.error('Erro no listener:', error);
+                        document.getElementById('syncText').textContent = '🔴 Erro na sincronização';
+                    });
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                document.getElementById('syncText').textContent = '⚠️ Erro ao sincronizar';
+                carregarDadosLocais();
+            }
+        }
+        
+        let salvandoTimeout = null;
+        
+        async function salvarDadosFirebase() {
+            if (!currentUser || !codigoEmpresaAtual) return;
+            
+            // Debounce: espera 500ms antes de salvar para evitar muitas escritas
+            if (salvandoTimeout) clearTimeout(salvandoTimeout);
+            
+            document.getElementById('syncText').textContent = '💾 Salvando...';
+            
+            salvandoTimeout = setTimeout(async () => {
+                try {
+                    await db.collection('empresas').doc(codigoEmpresaAtual).set({
+                        config: JSON.parse(localStorage.getItem('config3d') || '{}'),
+                        impressoras: JSON.parse(localStorage.getItem('impressoras3d') || '[]'),
+                        filamentos: JSON.parse(localStorage.getItem('filamentos3d') || '[]'),
+                        historico: JSON.parse(localStorage.getItem('historico3d') || '[]'),
+                        vendidos: JSON.parse(localStorage.getItem('vendidos3d') || '[]'),
+                        recusados: JSON.parse(localStorage.getItem('recusados3d') || '[]'),
+                        ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
+                        atualizadoPor: currentUser.email
+                    }, { merge: true });
+                    
+                    const agora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
+                    document.getElementById('syncText').textContent = `🟢 Sincronizado • ${codigoEmpresaAtual} • ${agora}`;
+                    
+                } catch (error) {
+                    console.error('Erro ao salvar dados:', error);
+                    document.getElementById('syncText').textContent = '🔴 Erro ao salvar';
+                }
+            }, 500);
+        }
+        
+        // Função wrapper para salvar no localStorage E no Firebase
+        function salvarDados(chave, dados) {
+            localStorage.setItem(chave, JSON.stringify(dados));
+            if (currentUser) {
+                salvarDadosFirebase();
+            }
+        }
+        
+        // ==================== TABS ====================
+        function mudarTab(tabId) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            // Remover active de todos os botões
+            document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabId + 'Tab').classList.remove('hidden');
+            // Ativar botão
+            document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Atualizar lista se necessário
+            if (tabId === 'calculadora') {
+                atualizarSelectImpressoras();
+                atualizarSelectFilamentos();
+            }
+            if (tabId === 'historico') carregarHistorico();
+        }
+        
+        // ==================== TOAST ====================
+        function toast(msg, duration = 3000) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), duration);
+        }
+        
+        // ==================== FORMATAÇÃO ====================
+        function formatarMoeda(valor) {
+            return 'R$ ' + valor.toFixed(2).replace('.', ',');
+        }
+        
+        function parseNum(val) {
+            return parseFloat(val) || 0;
+        }
+        
+        // ==================== CONFIGURAÇÕES ====================
+        function getConfig() {
+            return JSON.parse(localStorage.getItem('config3d')) || {
+                precoKwh: 0.85,
+                manutencaoHora: 0.50,
+                maoObraHora: 20.00,
+                fatorMaoObra: 20,
+                nomeEmpresa: 'Minha Empresa 3D',
+                contatoEmpresa: '@minhaempresa',
+                taxas: {
+                    pix: 0,
+                    debito: 1.5,
+                    '1x': 3,
+                    '2x': 4,
+                    '3x': 5,
+                    '4x': 6,
+                    '5x': 7,
+                    '6x': 8,
+                    '7x': 9,
+                    '8x': 10,
+                    '9x': 11,
+                    '10x': 12,
+                    '11x': 13,
+                    '12x': 14
+                }
+            };
+        }
+        
+        function carregarConfiguracoes() {
+            const c = getConfig();
+            document.getElementById('configPrecoKwh').value = c.precoKwh;
+            document.getElementById('configManutencao').value = c.manutencaoHora;
+            document.getElementById('configMaoObra').value = c.maoObraHora;
+            document.getElementById('configFatorMaoObra').value = c.fatorMaoObra;
+            document.getElementById('configNomeEmpresa').value = c.nomeEmpresa || '';
+            document.getElementById('configContatoEmpresa').value = c.contatoEmpresa || '';
+            
+            // Carregar taxas
+            const taxas = c.taxas || {};
+            document.getElementById('taxaPix').value = taxas.pix ?? 0;
+            document.getElementById('taxaDebito').value = taxas.debito ?? 1.5;
+            document.getElementById('taxa1x').value = taxas['1x'] ?? 3;
+            document.getElementById('taxa2x').value = taxas['2x'] ?? 4;
+            document.getElementById('taxa3x').value = taxas['3x'] ?? 5;
+            document.getElementById('taxa4x').value = taxas['4x'] ?? 6;
+            document.getElementById('taxa5x').value = taxas['5x'] ?? 7;
+            document.getElementById('taxa6x').value = taxas['6x'] ?? 8;
+            document.getElementById('taxa7x').value = taxas['7x'] ?? 9;
+            document.getElementById('taxa8x').value = taxas['8x'] ?? 10;
+            document.getElementById('taxa9x').value = taxas['9x'] ?? 11;
+            document.getElementById('taxa10x').value = taxas['10x'] ?? 12;
+            document.getElementById('taxa11x').value = taxas['11x'] ?? 13;
+            document.getElementById('taxa12x').value = taxas['12x'] ?? 14;
+        }
+        
+        function salvarConfiguracoes() {
+            const config = {
+                precoKwh: parseNum(document.getElementById('configPrecoKwh').value),
+                manutencaoHora: parseNum(document.getElementById('configManutencao').value),
+                maoObraHora: parseNum(document.getElementById('configMaoObra').value),
+                fatorMaoObra: parseNum(document.getElementById('configFatorMaoObra').value),
+                nomeEmpresa: document.getElementById('configNomeEmpresa').value || 'Minha Empresa 3D',
+                contatoEmpresa: document.getElementById('configContatoEmpresa').value || '',
+                taxas: {
+                    pix: parseNum(document.getElementById('taxaPix').value),
+                    debito: parseNum(document.getElementById('taxaDebito').value),
+                    '1x': parseNum(document.getElementById('taxa1x').value),
+                    '2x': parseNum(document.getElementById('taxa2x').value),
+                    '3x': parseNum(document.getElementById('taxa3x').value),
+                    '4x': parseNum(document.getElementById('taxa4x').value),
+                    '5x': parseNum(document.getElementById('taxa5x').value),
+                    '6x': parseNum(document.getElementById('taxa6x').value),
+                    '7x': parseNum(document.getElementById('taxa7x').value),
+                    '8x': parseNum(document.getElementById('taxa8x').value),
+                    '9x': parseNum(document.getElementById('taxa9x').value),
+                    '10x': parseNum(document.getElementById('taxa10x').value),
+                    '11x': parseNum(document.getElementById('taxa11x').value),
+                    '12x': parseNum(document.getElementById('taxa12x').value)
+                }
+            };
+            localStorage.setItem('config3d', JSON.stringify(config));
+            if (currentUser) salvarDadosFirebase();
+            toast('✅ Configurações salvas!');
+            calcular();
+        }
+        
+        // ==================== IMPRESSORAS ====================
+        function getImpressoras() {
+            return JSON.parse(localStorage.getItem('impressoras3d')) || [];
+        }
+        
+        function salvarImpressoras(lista) {
+            localStorage.setItem('impressoras3d', JSON.stringify(lista));
+            if (currentUser) salvarDadosFirebase();
+        }
+        
+        function salvarImpressora() {
+            const nome = document.getElementById('nomeImpressora').value.trim();
+            const valor = parseNum(document.getElementById('valorImpressora').value);
+            const vidaUtil = parseInt(document.getElementById('vidaUtilImpressora').value) || 0;
+            const potencia = parseInt(document.getElementById('potenciaImpressora').value) || 0;
+            
+            if (!nome) { toast('❌ Informe o nome'); return; }
+            if (valor <= 0) { toast('❌ Informe o valor'); return; }
+            if (vidaUtil <= 0) { toast('❌ Informe a vida útil'); return; }
+            if (potencia <= 0) { toast('❌ Informe a potência'); return; }
+            
+            const impressoras = getImpressoras();
+            impressoras.push({
+                id: Date.now(),
+                nome,
+                valor,
+                vidaUtil,
+                potencia,
+                custoHora: valor / vidaUtil
+            });
+            
+            salvarImpressoras(impressoras);
+            
+            // Limpar
+            document.getElementById('nomeImpressora').value = '';
+            document.getElementById('valorImpressora').value = '';
+            document.getElementById('vidaUtilImpressora').value = '5000';
+            document.getElementById('potenciaImpressora').value = '';
+            
+            carregarImpressoras();
+            atualizarSelectImpressoras();
+            toast('✅ Impressora cadastrada!');
+        }
+        
+        function excluirImpressora(id) {
+            if (!confirm('Excluir esta impressora?')) return;
+            let lista = getImpressoras().filter(p => p.id !== id);
+            salvarImpressoras(lista);
+            carregarImpressoras();
+            atualizarSelectImpressoras();
+            toast('🗑️ Impressora excluída');
+        }
+        
+        function carregarImpressoras() {
+            const lista = getImpressoras();
+            const container = document.getElementById('listaImpressoras');
+            const semMsg = document.getElementById('semImpressoras');
+            
+            if (lista.length === 0) {
+                container.innerHTML = '';
+                semMsg.style.display = 'block';
+                return;
+            }
+            
+            semMsg.style.display = 'none';
+            container.innerHTML = lista.map(p => `
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">${p.nome}</h3>
+                        <div class="text-sm text-gray-600 mt-1 space-y-1">
+                            <p>💰 Valor: ${formatarMoeda(p.valor)}</p>
+                            <p>⏰ Vida útil: ${p.vidaUtil.toLocaleString()}h</p>
+                            <p>⚡ Potência: ${p.potencia}W</p>
+                            <p class="text-indigo-600 font-medium">📊 Custo/hora: ${formatarMoeda(p.custoHora)}</p>
+                        </div>
+                    </div>
+                    <button onclick="excluirImpressora(${p.id})" class="text-red-500 hover:text-red-700 text-xl">🗑️</button>
+                </div>
+            `).join('');
+        }
+        
+        function atualizarSelectImpressoras() {
+            const lista = getImpressoras();
+            const container = document.getElementById('impressoraSelect');
+            const semMsg = document.getElementById('semImpressoraMsg');
+            
+            if (lista.length === 0) {
+                container.innerHTML = '';
+                semMsg.classList.remove('hidden');
+                impressoraSelecionada = null;
+                return;
+            }
+            
+            semMsg.classList.add('hidden');
+            container.innerHTML = lista.map((p, i) => `
+                <div class="printer-option ${i === 0 ? 'selected' : ''}" data-id="${p.id}" onclick="selecionarImpressora(${p.id})">
+                    <h4 class="font-semibold text-gray-800">${p.nome}</h4>
+                    <p class="text-xs text-gray-500">${p.potencia}W • ${formatarMoeda(p.custoHora)}/h</p>
+                </div>
+            `).join('');
+            
+            // Selecionar primeira
+            impressoraSelecionada = lista[0];
+            calcular();
+        }
+        
+        function selecionarImpressora(id) {
+            const lista = getImpressoras();
+            impressoraSelecionada = lista.find(p => p.id === id);
+            
+            document.querySelectorAll('.printer-option').forEach(el => {
+                el.classList.remove('selected');
+                if (parseInt(el.dataset.id) === id) el.classList.add('selected');
+            });
+            
+            calcular();
+        }
+        
+        // ==================== FILAMENTOS ====================
+        function getFilamentos() {
+            return JSON.parse(localStorage.getItem('filamentos3d')) || [];
+        }
+        
+        function salvarFilamentos(lista) {
+            localStorage.setItem('filamentos3d', JSON.stringify(lista));
+            if (currentUser) salvarDadosFirebase();
+        }
+        
+        function salvarFilamento() {
+            const editandoId = document.getElementById('editandoFilamentoId').value;
+            const tipo = document.getElementById('tipoFilamento').value.trim();
+            const custo = parseNum(document.getElementById('custoFilamento').value);
+            const estoque = parseNum(document.getElementById('estoqueFilamento').value);
+            const obs = document.getElementById('obsFilamento').value.trim();
+            
+            if (!tipo) { toast('❌ Informe o tipo do filamento'); return; }
+            if (custo <= 0) { toast('❌ Informe o custo do filamento'); return; }
+            
+            let filamentos = getFilamentos();
+            
+            if (editandoId) {
+                // Editando
+                const index = filamentos.findIndex(f => f.id === parseInt(editandoId));
+                if (index !== -1) {
+                    filamentos[index] = { ...filamentos[index], tipo, custo, estoque, obs };
+                }
+                toast('✅ Filamento atualizado!');
+            } else {
+                // Novo
+                filamentos.push({
+                    id: Date.now(),
+                    tipo,
+                    custo,
+                    estoque,
+                    obs
+                });
+                toast('✅ Filamento cadastrado!');
+            }
+            
+            salvarFilamentos(filamentos);
+            cancelarEdicaoFilamento();
+            carregarFilamentos();
+            atualizarSelectFilamentos();
+        }
+        
+        function editarFilamento(id) {
+            const filamentos = getFilamentos();
+            const f = filamentos.find(fil => fil.id === id);
+            if (!f) return;
+            
+            document.getElementById('editandoFilamentoId').value = id;
+            document.getElementById('tipoFilamento').value = f.tipo;
+            document.getElementById('custoFilamento').value = f.custo;
+            document.getElementById('estoqueFilamento').value = f.estoque || '';
+            document.getElementById('obsFilamento').value = f.obs || '';
+            
+            document.getElementById('tituloFormFilamento').textContent = '✏️ Editando Filamento';
+            document.getElementById('btnSalvarFilamento').textContent = '💾 Atualizar';
+            document.getElementById('btnCancelarFilamento').classList.remove('hidden');
+        }
+        
+        function cancelarEdicaoFilamento() {
+            document.getElementById('editandoFilamentoId').value = '';
+            document.getElementById('tipoFilamento').value = '';
+            document.getElementById('custoFilamento').value = '';
+            document.getElementById('estoqueFilamento').value = '';
+            document.getElementById('obsFilamento').value = '';
+            
+            document.getElementById('tituloFormFilamento').textContent = '➕ Cadastrar Filamento';
+            document.getElementById('btnSalvarFilamento').textContent = '💾 Salvar';
+            document.getElementById('btnCancelarFilamento').classList.add('hidden');
+        }
+        
+        function excluirFilamento(id) {
+            if (!confirm('Excluir este filamento?')) return;
+            let lista = getFilamentos().filter(f => f.id !== id);
+            salvarFilamentos(lista);
+            carregarFilamentos();
+            atualizarSelectFilamentos();
+            toast('🗑️ Filamento excluído');
+        }
+        
+        function carregarFilamentos() {
+            const lista = getFilamentos();
+            
+            // Separar por tipo
+            const filamentosPLA = lista.filter(f => f.tipo.toUpperCase().includes('PLA'));
+            const filamentosPETG = lista.filter(f => f.tipo.toUpperCase().includes('PETG'));
+            const filamentosOutros = lista.filter(f => 
+                !f.tipo.toUpperCase().includes('PLA') && 
+                !f.tipo.toUpperCase().includes('PETG')
+            );
+            
+            // Calcular totais de estoque
+            const totalPLA = filamentosPLA.reduce((sum, f) => sum + (f.estoque || 0), 0);
+            const totalPETG = filamentosPETG.reduce((sum, f) => sum + (f.estoque || 0), 0);
+            const totalOutros = filamentosOutros.reduce((sum, f) => sum + (f.estoque || 0), 0);
+            
+            document.getElementById('totalEstoquePLA').textContent = totalPLA.toLocaleString() + 'g (' + (totalPLA / 1000).toFixed(2) + ' kg)';
+            document.getElementById('totalEstoquePETG').textContent = totalPETG.toLocaleString() + 'g (' + (totalPETG / 1000).toFixed(2) + ' kg)';
+            document.getElementById('totalEstoqueOutros').textContent = totalOutros.toLocaleString() + 'g (' + (totalOutros / 1000).toFixed(2) + ' kg)';
+            
+            // Renderizar PLA
+            const containerPLA = document.getElementById('listaFilamentosPLA');
+            const semPLA = document.getElementById('semFilamentosPLA');
+            if (filamentosPLA.length === 0) {
+                containerPLA.innerHTML = '';
+                semPLA.style.display = 'block';
+            } else {
+                semPLA.style.display = 'none';
+                containerPLA.innerHTML = filamentosPLA.map(f => renderizarFilamento(f, 'blue')).join('');
+            }
+            
+            // Renderizar PETG
+            const containerPETG = document.getElementById('listaFilamentosPETG');
+            const semPETG = document.getElementById('semFilamentosPETG');
+            if (filamentosPETG.length === 0) {
+                containerPETG.innerHTML = '';
+                semPETG.style.display = 'block';
+            } else {
+                semPETG.style.display = 'none';
+                containerPETG.innerHTML = filamentosPETG.map(f => renderizarFilamento(f, 'orange')).join('');
+            }
+            
+            // Renderizar Outros
+            const containerOutros = document.getElementById('listaFilamentosOutros');
+            const secaoOutros = document.getElementById('secaoOutrosFilamentos');
+            if (filamentosOutros.length === 0) {
+                secaoOutros.style.display = 'none';
+            } else {
+                secaoOutros.style.display = 'block';
+                containerOutros.innerHTML = filamentosOutros.map(f => renderizarFilamento(f, 'gray')).join('');
+            }
+        }
+        
+        function renderizarFilamento(f, cor) {
+            const cores = {
+                blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-600' },
+                orange: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-600' },
+                gray: { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-600' }
+            };
+            const c = cores[cor] || cores.gray;
+            
+            return `
+                <div class="${c.bg} border ${c.border} rounded-lg p-3">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800 text-sm">${f.tipo}</h3>
+                            <div class="text-xs text-gray-600 mt-1 flex flex-wrap gap-2">
+                                <span class="${c.text} font-medium">💰 ${formatarMoeda(f.custo)}/kg</span>
+                                <span class="${(f.estoque || 0) < 100 ? 'text-red-500' : 'text-green-600'} font-medium">
+                                    📦 ${(f.estoque || 0).toLocaleString()}g
+                                </span>
+                            </div>
+                            ${f.obs ? `<p class="text-gray-500 text-xs mt-2 bg-white p-2 rounded">📝 ${f.obs}</p>` : ''}
+                        </div>
+                        <div class="flex gap-1 ml-2">
+                            <button onclick="editarFilamento(${f.id})" class="text-blue-500 hover:text-blue-700 text-sm p-1">✏️</button>
+                            <button onclick="excluirFilamento(${f.id})" class="text-red-500 hover:text-red-700 text-sm p-1">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function atualizarSelectFilamentos() {
+            const lista = getFilamentos();
+            const select = document.getElementById('filamentoSelect');
+            const semMsg = document.getElementById('semFilamentoMsg');
+            
+            if (lista.length === 0) {
+                select.innerHTML = '<option value="">Nenhum filamento cadastrado</option>';
+                semMsg.classList.remove('hidden');
+                filamentoSelecionado = null;
+                return;
+            }
+            
+            // Separar por tipo
+            const filamentosPLA = lista.filter(f => f.tipo.toUpperCase().includes('PLA'));
+            const filamentosPETG = lista.filter(f => f.tipo.toUpperCase().includes('PETG'));
+            const filamentosOutros = lista.filter(f => 
+                !f.tipo.toUpperCase().includes('PLA') && 
+                !f.tipo.toUpperCase().includes('PETG')
+            );
+            
+            semMsg.classList.add('hidden');
+            
+            let options = '<option value="">Selecione um filamento</option>';
+            
+            if (filamentosPLA.length > 0) {
+                options += '<optgroup label="🔵 PLA">';
+                options += filamentosPLA.map(f => {
+                    const estoque = f.estoque || 0;
+                    const estoqueInfo = estoque < 100 ? '⚠️' : '✅';
+                    return `<option value="${f.id}">${f.tipo} - ${formatarMoeda(f.custo)}/kg ${estoqueInfo} ${estoque.toLocaleString()}g</option>`;
+                }).join('');
+                options += '</optgroup>';
+            }
+            
+            if (filamentosPETG.length > 0) {
+                options += '<optgroup label="🟠 PETG">';
+                options += filamentosPETG.map(f => {
+                    const estoque = f.estoque || 0;
+                    const estoqueInfo = estoque < 100 ? '⚠️' : '✅';
+                    return `<option value="${f.id}">${f.tipo} - ${formatarMoeda(f.custo)}/kg ${estoqueInfo} ${estoque.toLocaleString()}g</option>`;
+                }).join('');
+                options += '</optgroup>';
+            }
+            
+            if (filamentosOutros.length > 0) {
+                options += '<optgroup label="⚪ Outros">';
+                options += filamentosOutros.map(f => {
+                    const estoque = f.estoque || 0;
+                    const estoqueInfo = estoque < 100 ? '⚠️' : '✅';
+                    return `<option value="${f.id}">${f.tipo} - ${formatarMoeda(f.custo)}/kg ${estoqueInfo} ${estoque.toLocaleString()}g</option>`;
+                }).join('');
+                options += '</optgroup>';
+            }
+            
+            select.innerHTML = options;
+            
+            // Selecionar primeiro automaticamente
+            if (lista.length > 0 && !filamentoSelecionado) {
+                select.value = lista[0].id;
+                filamentoSelecionado = lista[0];
+            }
+            calcular();
+        }
+        
+        function selecionarFilamento() {
+            const lista = getFilamentos();
+            const select = document.getElementById('filamentoSelect');
+            const id = parseInt(select.value);
+            
+            if (id) {
+                filamentoSelecionado = lista.find(f => f.id === id);
+            } else {
+                filamentoSelecionado = null;
+            }
+            
+            calcular();
+        }
+        
+        // ==================== CÁLCULO PRINCIPAL ====================
+        function calcular() {
+            const config = getConfig();
+            
+            if (!impressoraSelecionada) {
+                zerarResultados();
+                return;
+            }
+            
+            // Inputs
+            const peso = parseNum(document.getElementById('pesoPeca').value);
+            const precoFilamento = filamentoSelecionado ? filamentoSelecionado.custo : 0;
+            const horas = parseInt(document.getElementById('tempoHoras').value) || 0;
+            const minutos = parseInt(document.getElementById('tempoMinutos').value) || 0;
+            const pintura = parseNum(document.getElementById('valorPintura').value);
+            const outros = parseNum(document.getElementById('outrosCustos').value);
+            const markup = parseNum(document.getElementById('markup').value);
+            const formaPagamento = document.getElementById('formaPagamento').value;
+            
+            const tempoTotal = horas + (minutos / 60);
+            
+            // ========== CÁLCULOS ==========
+            // 1. Material: peso (g) × preço/g
+            const custoMaterial = peso * (precoFilamento / 1000);
+            
+            // 2. Energia: potência × tempo × preço kWh / 1000
+            const custoEnergia = (impressoraSelecionada.potencia * tempoTotal * config.precoKwh) / 1000;
+            
+            // 3. Depreciação: custo/hora da impressora × tempo
+            const custoDepreciacao = impressoraSelecionada.custoHora * tempoTotal;
+            
+            // 4. Manutenção: custo/hora × tempo
+            const custoManutencao = config.manutencaoHora * tempoTotal;
+            
+            // 5. Mão de obra: valor/hora × tempo × fator dedicação
+            const custoMaoObra = config.maoObraHora * tempoTotal * (config.fatorMaoObra / 100);
+            
+            // 6 e 7. Extras
+            const custoPintura = pintura;
+            const custoOutros = outros;
+            
+            // CUSTO TOTAL SEM TAXA
+            const custoTotalSemTaxa = custoMaterial + custoEnergia + custoDepreciacao + custoManutencao + custoMaoObra + custoPintura + custoOutros;
+            
+            // MARKUP (único lugar onde entra o lucro)
+            const valorLucro = custoTotalSemTaxa * (markup / 100);
+            const precoAntesCartao = custoTotalSemTaxa + valorLucro;
+            
+            // 8. Taxa de pagamento (aplicada sobre o preço com lucro)
+            const taxas = config.taxas || {};
+            const taxaPercent = taxas[formaPagamento] ?? 0;
+            const custoTaxaCartao = precoAntesCartao * (taxaPercent / 100);
+            
+            // CUSTO TOTAL COM TAXA
+            const custoTotal = custoTotalSemTaxa + custoTaxaCartao;
+            
+            // PREÇO FINAL
+            const precoFinal = precoAntesCartao + custoTaxaCartao;
+            
+            // ========== ATUALIZAR UI ==========
+            document.getElementById('custoMaterial').textContent = formatarMoeda(custoMaterial);
+            document.getElementById('custoEnergia').textContent = formatarMoeda(custoEnergia);
+            document.getElementById('custoDepreciacao').textContent = formatarMoeda(custoDepreciacao);
+            document.getElementById('custoManutencao').textContent = formatarMoeda(custoManutencao);
+            document.getElementById('custoMaoObra').textContent = formatarMoeda(custoMaoObra);
+            document.getElementById('custoPintura').textContent = formatarMoeda(custoPintura);
+            document.getElementById('custoOutros').textContent = formatarMoeda(custoOutros);
+            document.getElementById('custoTaxaCartao').textContent = formatarMoeda(custoTaxaCartao) + ` (${taxaPercent}%)`;
+            document.getElementById('custoTotal').textContent = formatarMoeda(custoTotal);
+            document.getElementById('valorLucro').textContent = formatarMoeda(valorLucro);
+            document.getElementById('precoFinal').textContent = formatarMoeda(precoFinal);
+            
+            // Mostrar/ocultar extras
+            document.getElementById('rowPintura').style.display = custoPintura > 0 ? 'flex' : 'none';
+            document.getElementById('rowOutros').style.display = custoOutros > 0 ? 'flex' : 'none';
+            document.getElementById('rowTaxaCartao').style.display = custoTaxaCartao > 0 ? 'flex' : 'none';
+            
+            // Salvar para uso posterior
+            ultimoOrcamento = {
+                nomePeca: document.getElementById('nomePeca').value || 'Sem nome',
+                cliente: document.getElementById('clientePeca').value || '-',
+                impressora: impressoraSelecionada.nome,
+                filamento: filamentoSelecionado ? filamentoSelecionado.tipo : '-',
+                filamentoId: filamentoSelecionado ? filamentoSelecionado.id : null,
+                peso, precoFilamento, horas, minutos, tempoTotal,
+                custoMaterial, custoEnergia, custoDepreciacao, custoManutencao, custoMaoObra,
+                custoPintura, custoOutros, custoTaxaCartao, formaPagamento, taxaPercent,
+                custoTotal, markup, valorLucro, precoFinal,
+                data: new Date().toLocaleDateString('pt-BR'),
+                dataHora: new Date().toLocaleString('pt-BR')
+            };
+        }
+        
+        function zerarResultados() {
+            ['custoMaterial', 'custoEnergia', 'custoDepreciacao', 'custoManutencao', 'custoMaoObra', 
+             'custoPintura', 'custoOutros', 'custoTaxaCartao', 'custoTotal', 'valorLucro', 'precoFinal'].forEach(id => {
+                document.getElementById(id).textContent = 'R$ 0,00';
+            });
+            document.getElementById('rowTaxaCartao').style.display = 'none';
+        }
+        
+        function limparFormulario() {
+            document.getElementById('nomePeca').value = '';
+            document.getElementById('clientePeca').value = '';
+            document.getElementById('pesoPeca').value = '';
+            document.getElementById('filamentoSelect').selectedIndex = 0;
+            filamentoSelecionado = null;
+            document.getElementById('tempoHoras').value = '';
+            document.getElementById('tempoMinutos').value = '';
+            document.getElementById('valorPintura').value = '';
+            document.getElementById('outrosCustos').value = '';
+            document.getElementById('formaPagamento').value = 'pix';
+            document.getElementById('markup').value = '50';
+            calcular();
+            toast('🔄 Formulário limpo');
+        }
+        
+        // ==================== SALVAR ORÇAMENTO ====================
+        function salvarOrcamento() {
+            if (!ultimoOrcamento || ultimoOrcamento.precoFinal <= 0) {
+                toast('❌ Preencha os dados primeiro');
+                return;
+            }
+            
+            // Atualizar nome e cliente com valores atuais do formulário
+            ultimoOrcamento.nomePeca = document.getElementById('nomePeca').value || 'Sem nome';
+            ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
+            ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
+            ultimoOrcamento.data = new Date().toLocaleDateString('pt-BR');
+            
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            historico.unshift({ ...ultimoOrcamento, id: Date.now() });
+            if (historico.length > 100) historico.pop();
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            if (currentUser) salvarDadosFirebase();
+            
+            toast('✅ Orçamento salvo!');
+            carregarHistorico();
+        }
+        
+        function copiarOrcamento() {
+            if (!ultimoOrcamento || ultimoOrcamento.precoFinal <= 0) {
+                toast('❌ Preencha os dados primeiro');
+                return;
+            }
+            
+            // Atualizar nome e cliente com valores atuais do formulário
+            ultimoOrcamento.nomePeca = document.getElementById('nomePeca').value || 'Sem nome';
+            ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
+            ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
+            
+            const config = getConfig();
+            const o = ultimoOrcamento;
+            
+            let txt = `📦 *ORÇAMENTO IMPRESSÃO 3D*\n`;
+            txt += `🏢 ${config.nomeEmpresa}\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            txt += `📅 Data: ${o.dataHora}\n`;
+            if (o.nomePeca !== 'Sem nome') txt += `📋 Peça: ${o.nomePeca}\n`;
+            if (o.cliente !== '-') txt += `👤 Cliente: ${o.cliente}\n`;
+            txt += `\n📐 *Especificações:*\n`;
+            if (o.filamento && o.filamento !== '-') txt += `• Material: ${o.filamento}\n`;
+            txt += `• Peso: ${o.peso}g\n`;
+            txt += `\n━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            txt += `💰 *VALOR: ${formatarMoeda(o.precoFinal)}*\n`;
+            txt += `━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            txt += `✅ Orçamento válido por 7 dias\n`;
+            if (config.contatoEmpresa) txt += `📱 ${config.contatoEmpresa}`;
+            
+            navigator.clipboard.writeText(txt).then(() => toast('📋 Copiado!'));
+        }
+        
+        // ==================== HISTÓRICO ====================
+        function mudarSubTab(subtabId) {
+            document.querySelectorAll('.subtab-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.subtab').forEach(b => {
+                b.classList.remove('active');
+                b.classList.add('border-transparent');
+            });
+            
+            document.getElementById(subtabId + 'SubTab').classList.remove('hidden');
+            document.querySelector(`[data-subtab="${subtabId}"]`).classList.add('active');
+            document.querySelector(`[data-subtab="${subtabId}"]`).classList.remove('border-transparent');
+            
+            if (subtabId === 'vendidos') carregarVendidos();
+            if (subtabId === 'recusados') carregarRecusados();
+        }
+        
+        function carregarHistorico() {
+            const historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            const tabela = document.getElementById('tabelaHistorico');
+            const semMsg = document.getElementById('semHistorico');
+            
+            if (historico.length === 0) {
+                tabela.innerHTML = '';
+                semMsg.style.display = 'block';
+                return;
+            }
+            
+            semMsg.style.display = 'none';
+            tabela.innerHTML = historico.map(o => `
+                <tr>
+                    <td class="px-3 py-3 text-sm">${o.nomePeca}</td>
+                    <td class="px-3 py-3 text-sm">${o.cliente}</td>
+                    <td class="px-3 py-3 text-sm text-xs">${o.filamento || '-'}</td>
+                    <td class="px-3 py-3 text-sm">${formatarMoeda(o.custoTotal)}</td>
+                    <td class="px-3 py-3 text-sm font-semibold text-indigo-600">${formatarMoeda(o.precoFinal)}</td>
+                    <td class="px-3 py-3 text-sm text-gray-500">${o.data}</td>
+                    <td class="px-3 py-3 text-sm">
+                        <button onclick="marcarVendido(${o.id})" class="bg-green-100 hover:bg-green-200 text-green-700 text-xs px-2 py-1 rounded mr-1" title="Marcar como Vendido">✅</button>
+                        <button onclick="marcarRecusado(${o.id})" class="bg-red-100 hover:bg-red-200 text-red-700 text-xs px-2 py-1 rounded" title="Marcar como Recusado">❌</button>
+                    </td>
+                    <td class="px-3 py-3 text-sm">
+                        <button onclick="carregarOrcamentoHistorico(${o.id})" class="text-indigo-600 hover:underline mr-1" title="Editar">📝</button>
+                        <button onclick="excluirOrcamento(${o.id})" class="text-red-500 hover:underline" title="Excluir">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function marcarVendido(id) {
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            const orcamento = historico.find(o => o.id === id);
+            if (!orcamento) return;
+            
+            // Descontar peso do estoque do filamento
+            if (orcamento.filamentoId && orcamento.peso > 0) {
+                let filamentos = getFilamentos();
+                const filamentoIndex = filamentos.findIndex(f => f.id === orcamento.filamentoId);
+                if (filamentoIndex !== -1) {
+                    filamentos[filamentoIndex].estoque = Math.max(0, (filamentos[filamentoIndex].estoque || 0) - orcamento.peso);
+                    salvarFilamentos(filamentos);
+                    carregarFilamentos();
+                }
+            }
+            
+            // Remover do histórico pendente
+            historico = historico.filter(o => o.id !== id);
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            
+            // Adicionar aos vendidos
+            let vendidos = JSON.parse(localStorage.getItem('vendidos3d')) || [];
+            orcamento.dataVenda = new Date().toLocaleDateString('pt-BR');
+            orcamento.mesVenda = new Date().toISOString().slice(0, 7); // YYYY-MM
+            vendidos.unshift(orcamento);
+            localStorage.setItem('vendidos3d', JSON.stringify(vendidos));
+            if (currentUser) salvarDadosFirebase();
+            
+            toast('✅ Vendido! Estoque atualizado');
+            carregarHistorico();
+            atualizarFiltroMeses();
+        }
+        
+        function marcarRecusado(id) {
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            const orcamento = historico.find(o => o.id === id);
+            if (!orcamento) return;
+            
+            // Remover do histórico pendente
+            historico = historico.filter(o => o.id !== id);
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            
+            // Adicionar aos recusados
+            let recusados = JSON.parse(localStorage.getItem('recusados3d')) || [];
+            orcamento.dataRecusa = new Date().toLocaleDateString('pt-BR');
+            recusados.unshift(orcamento);
+            localStorage.setItem('recusados3d', JSON.stringify(recusados));
+            if (currentUser) salvarDadosFirebase();
+            
+            toast('❌ Marcado como recusado');
+            carregarHistorico();
+        }
+        
+        function atualizarFiltroMeses() {
+            const vendidos = JSON.parse(localStorage.getItem('vendidos3d')) || [];
+            const select = document.getElementById('filtroMesVendas');
+            const mesesUnicos = [...new Set(vendidos.map(v => v.mesVenda))].sort().reverse();
+            
+            select.innerHTML = '<option value="">Todos os meses</option>' +
+                mesesUnicos.map(m => {
+                    const [ano, mes] = m.split('-');
+                    const nomeMes = new Date(ano, mes - 1).toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+                    return `<option value="${m}">${nomeMes}</option>`;
+                }).join('');
+        }
+        
+        function carregarVendidos() {
+            const vendidos = JSON.parse(localStorage.getItem('vendidos3d')) || [];
+            const filtroMes = document.getElementById('filtroMesVendas').value;
+            const tabela = document.getElementById('tabelaVendidos');
+            const semMsg = document.getElementById('semVendidos');
+            
+            atualizarFiltroMeses();
+            
+            let vendidosFiltrados = filtroMes 
+                ? vendidos.filter(v => v.mesVenda === filtroMes)
+                : vendidos;
+            
+            // Calcular totais
+            const totalVendido = vendidosFiltrados.reduce((sum, v) => sum + v.precoFinal, 0);
+            const lucroTotal = vendidosFiltrados.reduce((sum, v) => sum + v.valorLucro, 0);
+            const qtdVendas = vendidosFiltrados.length;
+            
+            // Calcular totais de PLA e PETG usados
+            const totalPLA = vendidosFiltrados
+                .filter(v => v.filamento && v.filamento.toUpperCase().includes('PLA'))
+                .reduce((sum, v) => sum + (v.peso || 0), 0);
+            
+            const totalPETG = vendidosFiltrados
+                .filter(v => v.filamento && v.filamento.toUpperCase().includes('PETG'))
+                .reduce((sum, v) => sum + (v.peso || 0), 0);
+            
+            document.getElementById('totalVendido').textContent = formatarMoeda(totalVendido);
+            document.getElementById('lucroTotalVendas').textContent = formatarMoeda(lucroTotal);
+            document.getElementById('qtdVendas').textContent = qtdVendas;
+            document.getElementById('totalPLAVendido').textContent = totalPLA.toLocaleString() + 'g';
+            document.getElementById('totalPETGVendido').textContent = totalPETG.toLocaleString() + 'g';
+            
+            if (vendidosFiltrados.length === 0) {
+                tabela.innerHTML = '';
+                semMsg.style.display = 'block';
+                return;
+            }
+            
+            semMsg.style.display = 'none';
+            tabela.innerHTML = vendidosFiltrados.map(o => `
+                <tr class="bg-green-50">
+                    <td class="px-3 py-3 text-sm">${o.nomePeca}</td>
+                    <td class="px-3 py-3 text-sm">${o.cliente}</td>
+                    <td class="px-3 py-3 text-sm text-xs">${o.filamento || '-'}</td>
+                    <td class="px-3 py-3 text-sm">${formatarMoeda(o.custoTotal)}</td>
+                    <td class="px-3 py-3 text-sm font-semibold text-green-600">${formatarMoeda(o.precoFinal)}</td>
+                    <td class="px-3 py-3 text-sm font-medium text-blue-600">${formatarMoeda(o.valorLucro)}</td>
+                    <td class="px-3 py-3 text-sm text-gray-500">${o.dataVenda || o.data}</td>
+                    <td class="px-3 py-3 text-sm">
+                        <button onclick="desfazerVenda(${o.id})" class="text-orange-500 hover:underline mr-1" title="Voltar para Pendentes">↩️</button>
+                        <button onclick="excluirVendido(${o.id})" class="text-red-500 hover:underline" title="Excluir">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function carregarRecusados() {
+            const recusados = JSON.parse(localStorage.getItem('recusados3d')) || [];
+            const tabela = document.getElementById('tabelaRecusados');
+            const semMsg = document.getElementById('semRecusados');
+            
+            if (recusados.length === 0) {
+                tabela.innerHTML = '';
+                semMsg.style.display = 'block';
+                return;
+            }
+            
+            semMsg.style.display = 'none';
+            tabela.innerHTML = recusados.map(o => `
+                <tr class="bg-red-50">
+                    <td class="px-3 py-3 text-sm">${o.nomePeca}</td>
+                    <td class="px-3 py-3 text-sm">${o.cliente}</td>
+                    <td class="px-3 py-3 text-sm font-semibold">${formatarMoeda(o.precoFinal)}</td>
+                    <td class="px-3 py-3 text-sm text-gray-500">${o.dataRecusa || o.data}</td>
+                    <td class="px-3 py-3 text-sm">
+                        <button onclick="desfazerRecusa(${o.id})" class="text-orange-500 hover:underline mr-1" title="Voltar para Pendentes">↩️</button>
+                        <button onclick="excluirRecusado(${o.id})" class="text-red-500 hover:underline" title="Excluir">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function desfazerVenda(id) {
+            let vendidos = JSON.parse(localStorage.getItem('vendidos3d')) || [];
+            const orcamento = vendidos.find(v => v.id === id);
+            if (!orcamento) return;
+            
+            // Devolver peso ao estoque do filamento
+            if (orcamento.filamentoId && orcamento.peso > 0) {
+                let filamentos = getFilamentos();
+                const filamentoIndex = filamentos.findIndex(f => f.id === orcamento.filamentoId);
+                if (filamentoIndex !== -1) {
+                    filamentos[filamentoIndex].estoque = (filamentos[filamentoIndex].estoque || 0) + orcamento.peso;
+                    salvarFilamentos(filamentos);
+                    carregarFilamentos();
+                }
+            }
+            
+            vendidos = vendidos.filter(v => v.id !== id);
+            localStorage.setItem('vendidos3d', JSON.stringify(vendidos));
+            
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            delete orcamento.dataVenda;
+            delete orcamento.mesVenda;
+            historico.unshift(orcamento);
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            if (currentUser) salvarDadosFirebase();
+            
+            toast('↩️ Voltou para pendentes. Estoque restaurado');
+            carregarVendidos();
+            carregarHistorico();
+        }
+        
+        function desfazerRecusa(id) {
+            let recusados = JSON.parse(localStorage.getItem('recusados3d')) || [];
+            const orcamento = recusados.find(r => r.id === id);
+            if (!orcamento) return;
+            
+            recusados = recusados.filter(r => r.id !== id);
+            localStorage.setItem('recusados3d', JSON.stringify(recusados));
+            
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            delete orcamento.dataRecusa;
+            historico.unshift(orcamento);
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            if (currentUser) salvarDadosFirebase();
+            
+            toast('↩️ Voltou para pendentes');
+            carregarRecusados();
+            carregarHistorico();
+        }
+        
+        function excluirVendido(id) {
+            if (!confirm('Excluir esta venda do histórico?')) return;
+            let vendidos = JSON.parse(localStorage.getItem('vendidos3d')) || [];
+            vendidos = vendidos.filter(v => v.id !== id);
+            localStorage.setItem('vendidos3d', JSON.stringify(vendidos));
+            if (currentUser) salvarDadosFirebase();
+            carregarVendidos();
+            toast('🗑️ Venda excluída');
+        }
+        
+        function excluirRecusado(id) {
+            if (!confirm('Excluir este orçamento recusado?')) return;
+            let recusados = JSON.parse(localStorage.getItem('recusados3d')) || [];
+            recusados = recusados.filter(r => r.id !== id);
+            localStorage.setItem('recusados3d', JSON.stringify(recusados));
+            if (currentUser) salvarDadosFirebase();
+            carregarRecusados();
+            toast('🗑️ Recusado excluído');
+        }
+        
+        function carregarOrcamentoHistorico(id) {
+            const historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            const o = historico.find(h => h.id === id);
+            if (!o) return;
+            
+            document.getElementById('nomePeca').value = o.nomePeca !== 'Sem nome' ? o.nomePeca : '';
+            document.getElementById('clientePeca').value = o.cliente !== '-' ? o.cliente : '';
+            document.getElementById('pesoPeca').value = o.peso;
+            
+            // Tentar selecionar o filamento pelo ID salvo
+            if (o.filamentoId) {
+                const select = document.getElementById('filamentoSelect');
+                select.value = o.filamentoId;
+                const filamentos = getFilamentos();
+                filamentoSelecionado = filamentos.find(f => f.id === o.filamentoId) || null;
+            }
+            
+            document.getElementById('tempoHoras').value = o.horas;
+            document.getElementById('tempoMinutos').value = o.minutos;
+            document.getElementById('valorPintura').value = o.custoPintura || '';
+            document.getElementById('outrosCustos').value = o.custoOutros || '';
+            document.getElementById('markup').value = o.markup;
+            
+            mudarTab('calculadora');
+            calcular();
+            toast('📝 Orçamento carregado');
+        }
+        
+        function excluirOrcamento(id) {
+            if (!confirm('Excluir este orçamento?')) return;
+            let historico = JSON.parse(localStorage.getItem('historico3d')) || [];
+            historico = historico.filter(o => o.id !== id);
+            localStorage.setItem('historico3d', JSON.stringify(historico));
+            if (currentUser) salvarDadosFirebase();
+            carregarHistorico();
+            toast('🗑️ Orçamento excluído');
+        }
+        
+        function limparHistorico() {
+            if (!confirm('Limpar todos os orçamentos PENDENTES?\n\n(Vendidos e Recusados não serão afetados)')) return;
+            localStorage.removeItem('historico3d');
+            if (currentUser) salvarDadosFirebase();
+            carregarHistorico();
+            toast('🗑️ Pendentes limpos');
+        }
+        
+        function limparRecusados() {
+            if (!confirm('Limpar todos os orçamentos RECUSADOS?')) return;
+            localStorage.removeItem('recusados3d');
+            if (currentUser) salvarDadosFirebase();
+            carregarRecusados();
+            toast('🗑️ Recusados limpos');
+        }
+        
+        // ==================== EXPORTAR PDF ====================
+        function exportarPDF() {
+            if (!ultimoOrcamento || ultimoOrcamento.precoFinal <= 0) {
+                toast('❌ Preencha os dados primeiro');
+                return;
+            }
+            
+            // Atualizar nome e cliente com valores atuais do formulário
+            ultimoOrcamento.nomePeca = document.getElementById('nomePeca').value || 'Sem nome';
+            ultimoOrcamento.cliente = document.getElementById('clientePeca').value || '-';
+            ultimoOrcamento.dataHora = new Date().toLocaleString('pt-BR');
+            
+            const config = getConfig();
+            const o = ultimoOrcamento;
+            
+            document.getElementById('pdfContent').innerHTML = `
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-indigo-700 mb-2">${config.nomeEmpresa}</h1>
+                    <p class="text-gray-500 text-sm">Orçamento de Impressão 3D</p>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Cliente</p>
+                            <p class="font-semibold text-gray-800 text-lg">${o.cliente}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">Data</p>
+                            <p class="font-semibold text-gray-800 text-lg">${o.dataHora}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                    <h2 class="font-semibold text-gray-800 text-lg mb-4 pb-2 border-b">📦 Detalhes do Projeto</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Peça:</span>
+                            <span class="font-medium text-gray-800">${o.nomePeca}</span>
+                        </div>
+                        ${o.filamento && o.filamento !== '-' ? `
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Material:</span>
+                            <span class="font-medium text-gray-800">${o.filamento}</span>
+                        </div>
+                        ` : ''}
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Peso:</span>
+                            <span class="font-medium text-gray-800">${o.peso}g</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-6 mb-6 text-white">
+                    <div class="text-center">
+                        <p class="text-indigo-100 text-sm mb-2">Valor Total</p>
+                        <p class="text-4xl font-bold">${formatarMoeda(o.precoFinal)}</p>
+                    </div>
+                </div>
+                
+                <div class="text-center text-gray-500 text-sm space-y-1 mt-8 pt-4 border-t">
+                    <p>✅ Orçamento válido por 7 dias</p>
+                    <p>📱 ${config.contatoEmpresa || config.nomeEmpresa}</p>
+                </div>
+            `;
+            
+            document.getElementById('pdfModal').classList.remove('hidden');
+        }
+        
+        function fecharModal() {
+            document.getElementById('pdfModal').classList.add('hidden');
+        }
+        
+        function gerarPDF() {
+            const { jsPDF } = window.jspdf;
+            const content = document.getElementById('pdfContent');
+            
+            html2canvas(content, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                
+                const config = getConfig();
+                const nomeArquivo = ultimoOrcamento.nomePeca !== 'Sem nome' 
+                    ? `orcamento-${ultimoOrcamento.nomePeca.replace(/\s+/g, '-')}.pdf`
+                    : `orcamento-${config.nomeEmpresa.replace(/\s+/g, '-')}.pdf`;
+                
+                pdf.save(nomeArquivo);
+                fecharModal();
+                toast('📥 PDF gerado!');
+            });
+        }
+    </script>
+</body>
+</html>
