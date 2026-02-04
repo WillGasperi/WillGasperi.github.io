@@ -1325,9 +1325,13 @@
         
         // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Iniciando app...');
+            
             // Capturar resultado do redirect (quando voltar do Google)
             auth.getRedirectResult().then((result) => {
+                console.log('getRedirectResult:', result);
                 if (result && result.user) {
+                    console.log('Login via redirect OK:', result.user.email);
                     toast('✅ Login realizado com sucesso!');
                 }
             }).catch((error) => {
@@ -1339,6 +1343,7 @@
             
             // Verificar estado de autenticação
             auth.onAuthStateChanged(async (user) => {
+                console.log('onAuthStateChanged:', user ? user.email : 'null');
                 if (user) {
                     currentUser = user;
                     mostrarUsuarioLogado(user);
